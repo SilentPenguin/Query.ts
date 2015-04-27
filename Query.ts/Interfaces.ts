@@ -3,7 +3,7 @@
 }
 interface Filter<T> extends Converter<T, boolean> { }
 
-interface ILinq<T> extends IFrom<T> {
+interface IQuery<T> extends IFrom<T> {
     any: IAny<T>;
     all: IAll<T>;
     to: ITo<T>;
@@ -20,11 +20,11 @@ interface IAll<T> {
 }
 
 interface ITo<TSource> {
-    <T>(func: Converter<TSource, T>): ILinq<T>;
+    <T>(func: Converter<TSource, T>): IQuery<T>;
 }
 
 interface IFrom<T> {
-    (items: T[]): ILinq<T>;
+    (items: T[]): IQuery<T>;
 }
 
 interface IFlow<T, TConj> {
@@ -41,10 +41,10 @@ interface IAction<T, TConj> {
     while: IWhile<T, TConj>;
 }
 
-interface IConjuction<T, TConj> extends ILinq<T> {
+interface IConjuction<T, TConj> extends IQuery<T> {
     and: TConj;
     or: TConj;
-    then: ILinq<T>;
+    then: IQuery<T>;
 }
 
 interface IIf<T, TConj> extends INot<T, TConj> { }
@@ -56,7 +56,7 @@ interface ISkip<T> extends IAction<T, ISkipped<T>> { }
 interface ITaken<T> extends IConjuction<T, ITake<T>> { }
 interface ISkipped<T> extends IConjuction<T, ISkip<T>> { }
 
-var from: ILinq<number>;
+var from: IQuery<number>;
 var items: number[];
 var otheritems: number[];
 var condition: Filter<number>;
