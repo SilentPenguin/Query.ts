@@ -1,10 +1,7 @@
-﻿interface Filter<T> {
-    (item: T): boolean;
-}
-
-interface Converter<TIn, TOut> {
+﻿interface Converter<TIn, TOut> {
     (item: TIn): TOut;
 }
+interface Filter<T> extends Converter<T, boolean> { }
 
 interface ILinq<T> extends IFrom<T> {
     any: IAny<T>;
