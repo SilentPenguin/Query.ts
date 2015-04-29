@@ -85,7 +85,7 @@
 
     function GroupBy<T>(): IGroupBy<T> {
         return function <TKey>(func: IConverter<T, TKey>): IQuery<IGrouping <TKey, T>> {
-            var iterator: IIterator<IGrouping<TKey, T>> = new GroupIterator(this.iterator, func);
+            var iterator: IIterator<IGrouping<TKey, T>> = new GroupByIterator(this.iterator, func);
             return new Query(iterator);
         }
     }
@@ -100,13 +100,31 @@
     }
 
     function Mix<T>(): IMix<T> {
-        return { with: MixWith<T>() }
+        return { with: MixWith<T>() };
     }
 
     function MixWith<T>(): IMixWith<T> {
-        return function (array: T[]): IQuery<T> {
-            var iterator: IIterator<T> = new MixIterator(this.iterator, array);
+        return function (array: IQuery<T>): IQuery<T> {
+            var iterator: IIterator<T> = new MixIterator(this.iterator, array.iterator);
+            return new Query(iterator);
         };
+    }
+
+    function Order<T>(): IOrder<T> {
+        return { by: OrderBy<T>() };
+    }
+
+    function OrderBy<T>(): IOrderBy<T> {
+        return function <TKey>(func: IConverter<T, TKey>): IOrdered<T> {
+            var iterator: IIterator<T> = new OrderIterator(this.iterator, func);
+            return new Ordered(iterator);
+        };
+    }
+
+    class Ordered<T> extends Query<T> implements IOrdered<T>
+    {
+        then: IOrder<T>;
+        constructor(iterator: IIterator<T>) { super(iterator) }
     }
     
    /*------------------*
@@ -139,7 +157,7 @@
     }
 
     class ParentIterator<TIn, TOut> extends BaseIterator<TOut> {
-        protected parent: IIterator<TIn>;
+        parent: IIterator<TIn>;
         reset(): void { this.parent.reset(); }
         constructor(parent: IIterator<TIn>) { super(); this.parent = parent; }
     }
@@ -257,12 +275,45 @@
         }
     }
 
+    class OrderIterator<T, TKey> extends ParentIterator<T, T>
+    {
+        orderparent: OrderIterator<T, any>;
+        func: IConverter<T, TKey>;
+        items: T[];
+        flattened: boolean;
+        next(): IIteratorResult<T> {
+            if (!this.flattened) {
+                this.items = this.parent.all();
+                this.items.sort(this.sort);
+                this.flattened = this.items.length > 0;
+            }
+
+            return new IteratorResult(this.items.length ? this.items.shift() : null, this.items.length > 0);
+        }
+        sort(a: T, b: T): number {
+            var akey: TKey = this.func(a);
+            var bkey: TKey = this.func(b);
+            var result: number = this.orderparent != null ? this.orderparent.sort(a, b) : null;
+            if (!result) {
+                result = (akey < bkey ? -1 : 1) * (akey == bkey ? 0 : 1);
+            }
+            return result;
+        }
+        constructor(parent: IIterator<T>, func: IConverter<T, TKey>) {
+            super(parent);
+            this.func = func;
+            this.items = [];
+            this.flattened = true;
+            this.orderparent = this.parent instanceof OrderIterator ? <OrderIterator<T, any>>this.parent : null;
+            this.parent = this.orderparent != null ? this.orderparent.parent : this.parent;
+        }
+    }
+
    /*------------------*
     *    Interfaces    *
     *------------------*/
     export interface IConverter<TIn, TOut> { (item: TIn): TOut; }
     export interface IFilter<T> extends IConverter<T, boolean> { }
-    export interface ISorter<T> { (a: T, b: T): number; }
 
     export interface IIterator<T> {
         reset(): void;
@@ -277,6 +328,7 @@
     }
 
     export interface IQuery<T> {
+        iterator: IIterator<T>;
         all: IAll<T>;
         any: IAny<T>;
         as: IAs<T>;
@@ -340,7 +392,7 @@
     }
 
     interface IMixWith<T> {
-        (array: T[]): IQuery<T>;
+        (array: IQuery<T>): IQuery<T>;
     }
 
     interface INot<T, TConj> {
@@ -348,15 +400,15 @@
     }
 
     interface IOrder<T> {
-        by: IOrderBy<T, IOrdered<T>>;
+        by: IOrderBy<T>;
     }
 
-    interface IOrdered<T> extends IOrder<T> {
+    interface IOrdered<T> extends IQuery<T> {
         then: IOrder<T>;
     }
 
-    interface IOrderBy<T, TResult> {
-        (func: ISorter<T>): TResult;
+    interface IOrderBy<T> {
+        <TKey>(func: IConverter<T, TKey>): IOrdered<T>;
     }
 
     interface IPair<T> {
