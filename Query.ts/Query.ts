@@ -548,7 +548,16 @@
         take: ITake<T>;
         skip: ISkip<T>;
         unique: IUnique<T>;
-        //zip: IZip<T>;
+        zip: IZip<T>;
+        /*
+        only: IOnly<T>
+        maximum: IMaximum<T>
+        minimum: IMinimum<T>
+        first: IFirst<T>
+        last: ILast<T>
+        single: ISingle<T>
+        reverse: IReverse<T>
+        */
     }
 
     interface IAny<T> {
