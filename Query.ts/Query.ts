@@ -18,9 +18,9 @@
         mix: IMix<T>         = Mix<T>();
         order: IOrder<T>     = Order<T>();
         pair: IPair<T>       = Pair<T>();
-        take: ITake<T>;
-        skip: ISkip<T>;
-        unique: IUnique<T>;
+        take: ITake<T>       = Take<T>();
+        skip: ISkip<T>       = Skip<T>();
+        unique: IUnique<T>   = Unique<T>();
     }
 
     function NotNull<T>(item: T): boolean {
@@ -163,6 +163,49 @@
             var iterator = new FilterIterator(this.iterator, (item: T) => !func(item));
             return new Query(iterator);
         };
+    }
+
+    function Take<T>(): ITake<T> {
+        var object: any = function (count: number) {
+
+        }
+        object.if = If<T>();
+        object.while = While<T>();
+        return object;
+    }
+
+    function Skip<T>(): ITake<T> {
+        var object: any = function (count: number) {
+
+        }
+        object.if = If<T>();
+        object.while = While<T>();
+        return object;
+    }
+
+    function Unique<T>(): IUnique<T> {
+        var object: any = function (): IQuery<T> {
+            var iterator: IIterator<T> = new UniqueIterator<T>(this.iterator);
+            return new Query(iterator);
+        };
+        object.by = UniqueBy<T>();
+        return object;
+    }
+
+    function UniqueBy<T>(): IUniqueBy<T> {
+        return function <TKey>(func: IConverter<T, TKey>): IQuery<T> {
+            var iterator: IIterator<T> = new UniqueByIterator(this.iterator, func);
+            return new Query(iterator);
+        }
+    }
+
+    function While<T>(): IWhile<T> {
+        var object: any = function (func: IFilter<T>): IQuery<T> {
+            var iterator = new WhileIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        object.not = Not<T>();
+        return object;
     }
     
    /*------------------*
@@ -319,6 +362,7 @@
         func: IConverter<T, TKey>;
         items: T[];
         flattened: boolean;
+        reset(): void { this.items.length = 0; this.flattened = false; }
         next(): IIteratorResult<T> {
             if (!this.flattened) {
                 this.items = this.parent.all();
@@ -354,6 +398,36 @@
         }
     }
 
+    class UniqueIterator<T> extends UniqueByIterator<T, T> {
+        constructor(parent: IIterator<T>) {
+            super(parent, (item: T) => item);
+        }
+    }
+
+    class UniqueByIterator<T, TKey> extends ParentIterator<T, T> {
+        func: IConverter<T, TKey>;
+        items: TKey[];
+        next(): IIteratorResult<T> {
+            var item: IIteratorResult<T> = this.parent.next(),
+                key: TKey;
+            while (!item.done) {
+                key = this.func(item.value);
+                if (this.items.indexOf(key) < 0) {
+                    this.items.push(key);
+                    break;
+                }
+                item = this.parent.next();
+            }
+
+            return item;
+        }
+        constructor(parent: IIterator<T>, func: IConverter<T, TKey>) {
+            super(parent);
+            this.func = func;
+            this.items = [];
+        }
+    }
+
    /*------------------*
     *    Interfaces    *
     *------------------*/
@@ -386,6 +460,7 @@
         take: ITake<T>;
         skip: ISkip<T>;
         unique: IUnique<T>;
+        //zip: IZip<T>;
     }
 
     interface IAny<T> {
@@ -503,11 +578,11 @@
     }
 
     interface IUniqueBy<T> {
-        <TKey>(func: IConverter<T, TKey>): T;
+        <TKey>(func: IConverter<T, TKey>): IQuery<T>;
     }
 
     interface IWhile<T> {
-        (func: IFilter<T>): T;
+        (func: IFilter<T>): IQuery<T>;
         not: INot<T>;
     }
 }
