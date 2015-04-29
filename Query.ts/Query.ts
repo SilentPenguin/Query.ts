@@ -167,7 +167,8 @@
 
     function Take<T>(): ITake<T> {
         var object: any = function (count: number) {
-
+            var iterator = new FilterIterator(this.iterator,(item: T, index: number) => index < count);
+            return new Query(iterator);
         }
         object.if = If<T>();
         object.while = While<T>();
@@ -176,7 +177,8 @@
 
     function Skip<T>(): ITake<T> {
         var object: any = function (count: number) {
-
+            var iterator = new FilterIterator(this.iterator,(item: T, index: number) => index >= count);
+            return new Query(iterator);
         }
         object.if = If<T>();
         object.while = While<T>();
@@ -266,9 +268,11 @@
 
     class FilterIterator<T> extends ParentIterator<T, T> {
         private func: IFilter<T>;
+        private index: number;
+        reset(): void { super.reset(); this.index = 0; }
         next(): IIteratorResult<T> {
             var item: IIteratorResult<T>;
-            while (!item || !item.done || !this.func(item.value)) {
+            while (!item || !item.done || !this.func(item.value, this.index++)) {
                 item = this.parent.next();
             }
             return item;
@@ -276,6 +280,7 @@
         constructor(parent: IIterator<T>, func: IFilter<T>) {
             super(parent);
             this.func = func;
+            this.index = 0;
         }
     }
 
@@ -428,11 +433,28 @@
         }
     }
 
+    class WhileIterator<T> extends ParentIterator<T, T>
+    {
+        func: IFilter<T>;
+        done: boolean;
+        reset(): void { super.reset(); this.done = false; }
+        next(): IIteratorResult<T> {
+            var item: IIteratorResult<T> = this.done ? null : this.parent.next();
+            this.done = this.done || this.func(item.value);
+            return this.done ? new IteratorResult<T>(null, true) : item;
+        }
+        constructor(parent: IIterator<T>, func: IFilter<T>) {
+            super(parent);
+            this.func = func;
+            this.done = false;
+        }
+    }
+
    /*------------------*
     *    Interfaces    *
     *------------------*/
     export interface IConverter<TIn, TOut> { (item: TIn): TOut; }
-    export interface IFilter<T> extends IConverter<T, boolean> { }
+    export interface IFilter<T> { (item: T, index?: number): boolean }
 
     export interface IIterator<T> {
         reset(): void;
