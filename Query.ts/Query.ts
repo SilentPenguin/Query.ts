@@ -98,6 +98,16 @@
             this.values = values;
         }
     }
+
+    function Mix<T>(): IMix<T> {
+        return { with: MixWith<T>() }
+    }
+
+    function MixWith<T>(): IMixWith<T> {
+        return function (array: T[]): IQuery<T> {
+            var iterator: IIterator<T> = new MixIterator(this.iterator, array);
+        };
+    }
     
    /*------------------*
     *    Iterators     *
@@ -106,10 +116,7 @@
     class IteratorResult<T> implements IIteratorResult<T> {
         value: T;
         done: boolean;
-        constructor(value: T, done: boolean) {
-            this.value = value;
-            this.done = done;
-        }
+        constructor(value: T, done: boolean) { this.value = value; this.done = done; }
     }
 
     class BaseIterator<T> implements IIterator<T> {
@@ -134,10 +141,13 @@
     class ParentIterator<TIn, TOut> extends BaseIterator<TOut> {
         protected parent: IIterator<TIn>;
         reset(): void { this.parent.reset(); }
-        constructor(parent: IIterator<TIn>) {
-            super();
-            this.parent = parent;
-        }
+        constructor(parent: IIterator<TIn>) { super(); this.parent = parent; }
+    }
+
+    class CombineIterator<TIn, TWith, TOut> extends ParentIterator<TIn, TOut> {
+        protected otherparent: IIterator<TWith>;
+        reset(): void { super.reset(); this.otherparent.reset(); }
+        constructor(parent: IIterator<TIn>, otherParent: IIterator<TWith>) { super(parent); this.otherparent = otherParent; }
     }
 
     class ConvertIterator<TIn, TOut> extends ParentIterator<TIn, TOut>
@@ -220,14 +230,30 @@
         constructor(parent: IIterator<T>, func: IConverter<T, TKey>) {
             super(parent);
             this.func = func;
-            this.keys = []
+            this.keys = [];
         }
     }
 
     class GroupFilterIterator<TKey, T> extends FilterIterator<T>
     {
         constructor(parent: IIterator<T>, func: IConverter<T, TKey>, key: TKey) {
-            super(parent, (item: T) => func(item) == key)
+            super(parent,(item: T) => func(item) == key);
+        }
+    }
+
+    class MixIterator<T> extends CombineIterator<T, T, T>
+    {
+        next(): IIteratorResult<T> {
+            var item: IIteratorResult <T> = this.parent.next();
+
+            if (item.done) {
+                item = this.otherparent.next();
+            }
+
+            return item;
+        }
+        constructor(parent: IIterator<T>, otherparent: IIterator<T>) {
+            super(parent, otherparent);
         }
     }
 
