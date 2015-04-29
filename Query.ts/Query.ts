@@ -4,7 +4,10 @@
     *  Implementation  *
     *------------------*/
 
-    export var from: IFrom;
+    export var from: IFrom = function <T>(array: T[]): IQuery<T> {
+        var iterator: IIterator<T> = new ArrayIterator(array);
+        return new Query(iterator);
+    };
 
     export class Query<T> implements IQuery<T> {
         iterator: IIterator<T>;
@@ -281,6 +284,23 @@
         parent: IIterator<TIn>;
         reset(): void { this.parent.reset(); }
         constructor(parent: IIterator<TIn>) { super(); this.parent = parent; }
+    }
+
+    class ArrayIterator<T> extends BaseIterator<T>
+    {
+        array: T[];
+        index: number;
+        reset(): void { this.index = 0; }
+        next(): IIteratorResult<T> {
+            var done: boolean = this.index >= this.array.length,
+                value: T = done ? null : this.array[this.index++];
+            return new IteratorResult(value, done);
+        }
+        constructor(array: T[]) {
+            super();
+            this.array = array;
+            this.index = 0;
+        }
     }
 
     class CombineIterator<TIn, TWith, TOut> extends ParentIterator<TIn, TOut> {
