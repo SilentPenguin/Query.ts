@@ -9,18 +9,19 @@
     export class Query<T> implements IQuery<T> {
         iterator: IIterator<T>;
         constructor(iterator: IIterator<T>){ this.iterator = iterator }
-        all: IAll<T>         = All<T>();
-        any: IAny<T>         = Any<T>();
-        as: IAs<T>           = As<T>();
-        count: ICount<T>     = Count<T>();
-        flatten: IFlatten<T> = Flatten<T>();
-        group: IGroup<T>     = Group<T>();
-        mix: IMix<T>         = Mix<T>();
-        order: IOrder<T>     = Order<T>();
-        pair: IPair<T>       = Pair<T>();
-        take: ITake<T>       = Take<T>();
-        skip: ISkip<T>       = Skip<T>();
-        unique: IUnique<T>   = Unique<T>();
+        all: IAll<T>            = All<T>();
+        any: IAny<T>            = Any<T>();
+        as: IAs<T>              = As<T>();
+        count: ICount<T>        = Count<T>();
+        flatten: IFlatten<T>    = Flatten<T>();
+        group: IGroup<T>        = Group<T>();
+        mix: IMix<T>            = Mix<T>();
+        order: IOrder<T>        = Order<T>();
+        pair: IPair<T>          = Pair<T>();
+        take: ITake<T>          = Take<T>();
+        skip: ISkip<T>          = Skip<T>();
+        unique: IUnique<T>      = Unique<T>();
+        zip: IZip<T>            = Zip<T>();
     }
 
     function NotNull<T>(item: T): boolean {
@@ -229,6 +230,24 @@
         }
     }
     
+    function Zip<T>(): IZip<T> {
+        return { with: ZipWith<T>() };
+    }
+
+    function ZipWith<T>(): IZipWith<T> {
+        return function <TWith>(array: IQuery<TWith>): IZipQuery<T, TWith> {
+            var iterator: IIterator<IZipping<T, TWith>> = new ZipIterator<T, TWith>(this.iterator, array.iterator);
+            return new ZipQuery(iterator);
+        };
+    }
+
+    class ZipQuery<T, TWith> extends Query<IZipping<T, TWith>> implements IZipQuery<T, TWith> {
+        if: IIf<IZipping<T, TWith>> = TakeIf<IZipping<T, TWith>>();
+        constructor(iterator: IIterator<IZipping<T, TWith>>) { super(iterator) }
+    }
+
+    class Zipping<T, TWith> extends Pairing<T, TWith> { }
+
    /*------------------*
     *    Iterators     *
     *------------------*/
@@ -415,10 +434,38 @@
         }
     }
 
-    class PairIterator<T, TWith> extends CombineIterator<T, TWith, IPairing<T, TWith>>
-    {
+    class PairIterator<T, TWith> extends CombineIterator<T, TWith, IPairing<T, TWith>> {
+        private outer: IIteratorResult<T>;
+        reset(): void { super.reset(); this.outer = null; }
+        next(): IIteratorResult<IPairing<T, TWith>> {
+            var pair: IPairing<T, TWith>,
+                done: boolean,
+                inner: IIteratorResult<TWith> = this.otherparent.next();
+            if (inner.done || !this.outer || !this.outer.done) {
+                this.outer = this.parent.next();
+                this.otherparent.reset();
+                inner = this.otherparent.next();
+            }
+
+            done = this.outer.done || inner.done;
+            pair = done ? null : new Pairing(this.outer.value, inner.value);
+
+            return new IteratorResult(pair, done);
+        }
         constructor(parent: IIterator<T>, otherparent: IIterator<TWith>) {
             super(parent, otherparent);
+            this.outer = null;
+        }
+    }
+
+    class ZipIterator<T, TWith> extends CombineIterator<T, TWith, IZipping<T, TWith>>{
+        next(): IIteratorResult<IZipping<T, TWith>> {
+            var outer: IIteratorResult<T> = this.parent.next(),
+                inner: IIteratorResult<TWith> = this.otherparent.next(),
+                done: boolean = inner.done || outer.done,
+                value: IZipping<T, TWith> = done ? null : new Zipping(outer.value, inner.value);
+
+            return new IteratorResult(value, done);
         }
     }
 
@@ -580,13 +627,13 @@
         <T, TWith>(array: IQuery<TWith>): IPairQuery<T, TWith>;
     }
 
+    interface IPairQuery<T, TWith> extends IQuery<IPairing<T, TWith>> {
+        if: IIf<IPairing<T, TWith>>;
+    }
+
     interface IPairing<T, TWith> {
         source: T;
         target: TWith;
-    }
-
-    interface IPairQuery<T, TWith> extends IQuery<IPairing<T, TWith>> {
-        if: IIf<IPairing<T, TWith>>;
     }
 
     interface ITake<T> {
@@ -625,5 +672,22 @@
     interface IWhile<T> {
         (func: IFilter<T>): IQuery<T>;
         not: INot<T>;
+    }
+
+    interface IZip<T> {
+        with: IZipWith<T>;
+    }
+
+    interface IZipWith<T> {
+        <T, TWith>(array: IQuery<TWith>): IZipQuery<T, TWith>;
+    }
+
+    interface IZipQuery<T, TWith> extends IQuery<IZipping<T, TWith>> {
+        if: IIf<IZipping<T, TWith>>;
+    }
+
+    interface IZipping<T, TWith> {
+        source: T;
+        target: TWith;
     }
 }
