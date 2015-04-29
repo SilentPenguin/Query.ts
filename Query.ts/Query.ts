@@ -9,15 +9,15 @@
     export class Query<T> implements IQuery<T> {
         iterator: IIterator<T>;
         constructor(iterator: IIterator<T>){ this.iterator = iterator }
-        all: IAll<T> = All<T>();
-        any: IAny<T> = Any<T>();
-        as: IAs<T> = As<T>();
-        count: ICount<T> = Count<T>();
+        all: IAll<T>         = All<T>();
+        any: IAny<T>         = Any<T>();
+        as: IAs<T>           = As<T>();
+        count: ICount<T>     = Count<T>();
         flatten: IFlatten<T> = Flatten<T>();
-        group: IGroup<T>;
-        mix: IMix<T>;
-        order: IOrder<T>;
-        pair: IPair<T>;
+        group: IGroup<T>     = Group<T>();
+        mix: IMix<T>         = Mix<T>();
+        order: IOrder<T>     = Order<T>();
+        pair: IPair<T>       = Pair<T>();
         take: ITake<T>;
         skip: ISkip<T>;
         unique: IUnique<T>;
@@ -125,6 +125,44 @@
     {
         then: IOrder<T>;
         constructor(iterator: IIterator<T>) { super(iterator) }
+    }
+
+    function Pair<T>(): IPair<T> {
+        return { with: PairWith<T>() };
+    }
+
+    function PairWith<T>(): IPairWith<T> {
+        return function <T, TWith>(array: IQuery<TWith>): IPairQuery<T, TWith> {
+            var iterator: IIterator<IPairing<T, TWith>> = new PairIterator<T, TWith>(this.iterator, array.iterator);
+            return new PairQuery(iterator);
+        };
+    }
+
+    class Pairing<TSource, TTarget> implements IPairing<TSource, TTarget> {
+        source: TSource;
+        target: TTarget;
+        constructor(source: TSource, target: TTarget) { this.source = source; this.target = target; }
+    }
+
+    class PairQuery<T, TWith> extends Query<IPairing<T, TWith>> implements IPairQuery<T, TWith> {
+        if: IIf<IPairing<T, TWith>> = If<IPairing<T, TWith>>();
+        constructor(iterator: IIterator<IPairing<T, TWith>>) { super(iterator) }
+    }
+
+    function If<T>(): IIf<T> {
+        var object: any = function (func: IFilter<T>): IQuery<T> {
+            var iterator = new FilterIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        object.not = Not<T>();
+        return object;
+    }
+
+    function Not<T>(): INot<T> {
+        return function (func: IFilter<T>): IQuery<T> {
+            var iterator = new FilterIterator(this.iterator, (item: T) => !func(item));
+            return new Query(iterator);
+        };
     }
     
    /*------------------*
@@ -291,9 +329,9 @@
             return new IteratorResult(this.items.length ? this.items.shift() : null, this.items.length > 0);
         }
         sort(a: T, b: T): number {
-            var akey: TKey = this.func(a);
-            var bkey: TKey = this.func(b);
-            var result: number = this.orderparent != null ? this.orderparent.sort(a, b) : null;
+            var akey: TKey = this.func(a),
+                bkey: TKey = this.func(b),
+                result: number = this.orderparent != null ? this.orderparent.sort(a, b) : 0;
             if (!result) {
                 result = (akey < bkey ? -1 : 1) * (akey == bkey ? 0 : 1);
             }
@@ -303,9 +341,16 @@
             super(parent);
             this.func = func;
             this.items = [];
-            this.flattened = true;
+            this.flattened = false;
             this.orderparent = this.parent instanceof OrderIterator ? <OrderIterator<T, any>>this.parent : null;
             this.parent = this.orderparent != null ? this.orderparent.parent : this.parent;
+        }
+    }
+
+    class PairIterator<T, TWith> extends CombineIterator<T, TWith, IPairing<T, TWith>>
+    {
+        constructor(parent: IIterator<T>, otherparent: IIterator<TWith>) {
+            super(parent, otherparent);
         }
     }
 
@@ -382,9 +427,9 @@
         values: IQuery<TValue>;
     }
 
-    interface IIf<T, TConj> {
-        (func: IFilter<T>): TConj;
-        not: INot<T, TConj>;
+    interface IIf<T> {
+        (func: IFilter<T>): T;
+        not: INot<T>;
     }
 
     interface IMix<T> {
@@ -395,8 +440,8 @@
         (array: IQuery<T>): IQuery<T>;
     }
 
-    interface INot<T, TConj> {
-        (func: IFilter<T>): TConj;
+    interface INot<T> {
+        (func: IFilter<T>): IQuery<T>;
     }
 
     interface IOrder<T> {
@@ -416,22 +461,22 @@
     }
 
     interface IPairWith<T> {
-        <TTarget, TResult>(array: TTarget[]): IPairQuery<T, TTarget>;
+        <T, TWith>(array: IQuery<TWith>): IPairQuery<T, TWith>;
     }
 
-    interface IPairing<TSource, TTarget> {
-        source: TSource;
-        target: TTarget;
+    interface IPairing<T, TWith> {
+        source: T;
+        target: TWith;
     }
 
-    interface IPairQuery<TSource, TTarget> extends IQuery<IPairing<TSource, TTarget>> {
-        if: <TResult>(condition: IFilter<IPairing<TSource, TTarget>>) => IQuery<IPairing<TSource, TTarget>>;
+    interface IPairQuery<T, TWith> extends IQuery<IPairing<T, TWith>> {
+        if: IIf<IPairing<T, TWith>>;
     }
 
     interface ITake<T> {
         (count: number): IQuery<T>;
-        if: IIf<T, ITaken<T>>;
-        while: IWhile<T, ITaken<T>>;
+        if: IIf<T>;
+        while: IWhile<T>;
     }
 
     interface ITaken<T> extends IQuery<T> {
@@ -442,8 +487,8 @@
 
     interface ISkip<T> {
         (count: number): IQuery<T>;
-        if: IIf<T, ITaken<T>>;
-        while: IWhile<T, ITaken<T>>;
+        if: IIf<T>;
+        while: IWhile<T>;
     }
 
     interface ISkipped<T> extends IQuery<T> {
@@ -461,8 +506,8 @@
         <TKey>(func: IConverter<T, TKey>): T;
     }
 
-    interface IWhile<T, TConj> {
-        (func: IFilter<T>): TConj;
-        not: INot<T, TConj>;
+    interface IWhile<T> {
+        (func: IFilter<T>): T;
+        not: INot<T>;
     }
 }
