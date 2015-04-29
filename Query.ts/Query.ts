@@ -145,24 +145,8 @@
     }
 
     class PairQuery<T, TWith> extends Query<IPairing<T, TWith>> implements IPairQuery<T, TWith> {
-        if: IIf<IPairing<T, TWith>> = If<IPairing<T, TWith>>();
+        if: IIf<IPairing<T, TWith>> = TakeIf<IPairing<T, TWith>>();
         constructor(iterator: IIterator<IPairing<T, TWith>>) { super(iterator) }
-    }
-
-    function If<T>(): IIf<T> {
-        var object: any = function (func: IFilter<T>): IQuery<T> {
-            var iterator = new FilterIterator(this.iterator, func);
-            return new Query(iterator);
-        };
-        object.not = Not<T>();
-        return object;
-    }
-
-    function Not<T>(): INot<T> {
-        return function (func: IFilter<T>): IQuery<T> {
-            var iterator = new FilterIterator(this.iterator, (item: T) => !func(item));
-            return new Query(iterator);
-        };
     }
 
     function Take<T>(): ITake<T> {
@@ -170,8 +154,30 @@
             var iterator = new FilterIterator(this.iterator,(item: T, index: number) => index < count);
             return new Query(iterator);
         }
-        object.if = If<T>();
-        object.while = While<T>();
+        object.if = TakeIf<T>();
+        object.while = TakeWhile<T>();
+        return object;
+    }
+
+    function TakeIf<T>(base?: boolean): IIf<T> {
+        var object: any = function (func: IFilter<T>): IQuery<T> {
+            var iterator = new FilterIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        if (base) {
+            object.not = SkipIf<T>(true);
+        }
+        return object;
+    }
+
+    function TakeWhile<T>(base?: boolean): IWhile<T> {
+        var object: any = function (func: IFilter<T>): IQuery<T> {
+            var iterator = new WhileIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        if (base) {
+            object.not = SkipWhile<T>(true);
+        }
         return object;
     }
 
@@ -180,8 +186,30 @@
             var iterator = new FilterIterator(this.iterator,(item: T, index: number) => index >= count);
             return new Query(iterator);
         }
-        object.if = If<T>();
-        object.while = While<T>();
+        object.if = SkipIf<T>();
+        object.while = SkipWhile<T>();
+        return object;
+    }
+
+    function SkipIf<T>(base?: boolean): IIf<T> {
+        var object: any = function (func: IFilter<T>): IQuery<T> {
+            var iterator = new FilterIterator(this.iterator, (item: T) => !func(item));
+            return new Query(iterator);
+        };
+        if (base) {
+            object.not = TakeIf<T>(true);
+        }
+        return object;
+    }
+
+    function SkipWhile<T>(base?: boolean): IWhile<T> {
+        var object: any = function (func: IFilter<T>): IQuery<T> {
+            var iterator = new WhileIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        if (base) {
+            object.not = TakeWhile<T>(true);
+        }
         return object;
     }
 
@@ -199,15 +227,6 @@
             var iterator: IIterator<T> = new UniqueByIterator(this.iterator, func);
             return new Query(iterator);
         }
-    }
-
-    function While<T>(): IWhile<T> {
-        var object: any = function (func: IFilter<T>): IQuery<T> {
-            var iterator = new WhileIterator(this.iterator, func);
-            return new Query(iterator);
-        };
-        object.not = Not<T>();
-        return object;
     }
     
    /*------------------*
