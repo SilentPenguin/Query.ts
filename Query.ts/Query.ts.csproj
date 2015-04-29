@@ -24,7 +24,9 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="Classes.ts" />
     <TypeScriptCompile Include="Interfaces.ts" />
+    <TypeScriptCompile Include="Query.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
