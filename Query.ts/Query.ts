@@ -261,38 +261,6 @@
         }
     }
 
-    function Take<T>(): ITake<T> {
-        var object: any = (count: number) => {
-            var iterator = new FilterIterator(this.iterator, (item: T, index: number) => index < count);
-            return new Query(iterator);
-        }
-        object.if = TakeIf.call(this);
-        object.while = TakeWhile.call(this);
-        return object;
-    }
-
-    function TakeIf<T>(base?: boolean): IIf<T> {
-        var object: any = (func: IFilter<T>): IQuery<T> => {
-            var iterator = new FilterIterator(this.iterator, func);
-            return new Query(iterator);
-        };
-        if (!base) {
-            object.not = SkipIf.call(this, true);
-        }
-        return object;
-    }
-
-    function TakeWhile<T>(base?: boolean): IWhile<T> {
-        var object: any = (func: IFilter<T>): IQuery<T> => {
-            var iterator = new WhileIterator(this.iterator, func);
-            return new Query(iterator);
-        };
-        if (!base) {
-            object.not = SkipWhile.call(this, true);
-        }
-        return object;
-    }
-
     function Skip<T>(): ITake<T> {
         var object: any = (count: number) => {
             var iterator = new FilterIterator(this.iterator,(item: T, index: number) => index >= count);
@@ -316,11 +284,43 @@
 
     function SkipWhile<T>(base?: boolean): IWhile<T> {
         var object: any = (func: IFilter<T>): IQuery<T> => {
-            var iterator = new WhileIterator(this.iterator, func);
+            var iterator = new SkipWhileIterator(this.iterator, func);
             return new Query(iterator);
         };
         if (!base) {
             object.not = TakeWhile.call(this, true);
+        }
+        return object;
+    }
+
+    function Take<T>(): ITake<T> {
+        var object: any = (count: number) => {
+            var iterator = new FilterIterator(this.iterator,(item: T, index: number) => index < count);
+            return new Query(iterator);
+        }
+        object.if = TakeIf.call(this);
+        object.while = TakeWhile.call(this);
+        return object;
+    }
+
+    function TakeIf<T>(base?: boolean): IIf<T> {
+        var object: any = (func: IFilter<T>): IQuery<T> => {
+            var iterator = new FilterIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        if (!base) {
+            object.not = SkipIf.call(this, true);
+        }
+        return object;
+    }
+
+    function TakeWhile<T>(base?: boolean): IWhile<T> {
+        var object: any = (func: IFilter<T>): IQuery<T> => {
+            var iterator = new TakeWhileIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        if (!base) {
+            object.not = SkipWhile.call(this, true);
         }
         return object;
     }
@@ -594,14 +594,61 @@
         }
     }
 
-    class ZipIterator<T, TWith> extends CombineIterator<T, TWith, IZipping<T, TWith>>{
-        next(): IIteratorResult<IZipping<T, TWith>> {
-            var outer: IIteratorResult<T> = this.parent.next(),
-                inner: IIteratorResult<TWith> = this.otherparent.next(),
-                done: boolean = inner.done || outer.done,
-                value: IZipping<T, TWith> = done ? null : new Zipping(outer.value, inner.value);
+    class ReverseIterator<T> extends ParentIterator<T, T> {
+        items: T[]
+        reset(): void { super.reset(); this.items = null; }
+        next(): IIteratorResult<T> {
+            var done: boolean,
+                value: T;
+
+            if (this.items == null) {
+                this.items = this.parent.all();
+            }
+
+            done = this.items.length == 0;
+            value = done ? null : this.items.shift();
 
             return new IteratorResult(value, done);
+        }
+        constructor(parent: IIterator<T>) {
+            super(parent);
+            this.items = null;
+        }
+    }
+
+    class SkipWhileIterator<T> extends ParentIterator<T, T> {
+        func: IFilter<T>;
+        done: boolean;
+        reset(): void { super.reset(); this.done = false; }
+        next(): IIteratorResult<T> {
+            var item: IIteratorResult<T>;
+            while (!item || !this.done) {
+                item = this.parent.next();
+                this.done = this.done || item.done || !this.func(item.value);
+            }
+
+            return this.done ? item : new IteratorResult<T>(null, true);
+        }
+        constructor(parent: IIterator<T>, func: IFilter<T>) {
+            super(parent);
+            this.func = func;
+            this.done = false;
+        }
+    }
+
+    class TakeWhileIterator<T> extends ParentIterator<T, T> {
+        func: IFilter<T>;
+        done: boolean;
+        reset(): void { super.reset(); this.done = false; }
+        next(): IIteratorResult<T> {
+            var item: IIteratorResult<T> = this.done ? null : this.parent.next();
+            this.done = item.done || !this.func(item.value);
+            return this.done ? new IteratorResult<T>(null, true) : item;
+        }
+        constructor(parent: IIterator<T>, func: IFilter<T>) {
+            super(parent);
+            this.func = func;
+            this.done = false;
         }
     }
 
@@ -635,41 +682,14 @@
         }
     }
 
-    class WhileIterator<T> extends ParentIterator<T, T> {
-        func: IFilter<T>;
-        done: boolean;
-        reset(): void { super.reset(); this.done = false; }
-        next(): IIteratorResult<T> {
-            var item: IIteratorResult<T> = this.done ? null : this.parent.next();
-            this.done = this.done || item.done || !this.func(item.value);
-            return this.done ? new IteratorResult<T>(null, true) : item;
-        }
-        constructor(parent: IIterator<T>, func: IFilter<T>) {
-            super(parent);
-            this.func = func;
-            this.done = false;
-        }
-    }
-
-    class ReverseIterator<T> extends ParentIterator<T, T> {
-        items: T[]
-        reset(): void { super.reset(); this.items = null; }
-        next(): IIteratorResult<T> {
-            var done: boolean,
-                value: T;
-
-            if (this.items == null) {
-                this.items = this.parent.all();
-            }
-
-            done = this.items.length == 0;
-            value = done ? null : this.items.shift();
+    class ZipIterator<T, TWith> extends CombineIterator<T, TWith, IZipping<T, TWith>>{
+        next(): IIteratorResult<IZipping<T, TWith>> {
+            var outer: IIteratorResult<T> = this.parent.next(),
+                inner: IIteratorResult<TWith> = this.otherparent.next(),
+                done: boolean = inner.done || outer.done,
+                value: IZipping<T, TWith> = done ? null : new Zipping(outer.value, inner.value);
 
             return new IteratorResult(value, done);
-        }
-        constructor(parent: IIterator<T>) {
-            super(parent);
-            this.items = null;
         }
     }
 
