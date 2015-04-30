@@ -16,12 +16,19 @@
         any: IAny<T>            = Any<T>();
         as: IAs<T>              = As<T>();
         count: ICount<T>        = Count<T>();
+        first: IFirst<T>        = First<T>();
         flatten: IFlatten<T>    = Flatten<T>();
         group: IGroup<T>        = Group<T>();
+        last: ILast<T>          = Last<T>();
+        maximum: IMaximum<T>    = Maximum<T>();
+        minimum: IMinimum<T>    = Minimum<T>();
         mix: IMix<T>            = Mix<T>();
+        only: IOnly<T>          = Only<T>();
         order: IOrder<T>        = Order<T>();
         pair: IPair<T>          = Pair<T>();
         take: ITake<T>          = Take<T>();
+        reverse: IReverse<T>    = Reverse<T>();
+        single: ISingle<T>      = Single<T>();
         skip: ISkip<T>          = Skip<T>();
         unique: IUnique<T>      = Unique<T>();
         zip: IZip<T>            = Zip<T>();
@@ -29,6 +36,99 @@
 
     function NotNull<T>(item: T): boolean {
         return item != null;
+    }
+
+    function Only<T>(): IOnly<T> {
+        return function (func?: IFilter<T>): boolean {
+            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func);
+            iterator.next();
+            return iterator.next().done;
+        }
+    }
+
+    function First<T>(): IFirst<T> {
+        return function (func?: IFilter<T>): T {
+            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
+                item: IIteratorResult<T> = iterator.next();
+            return item.done ? null : item.value;
+        }
+    }
+
+    function Last<T>(): ILast<T> {
+        return function (func?: IFilter<T>): T {
+            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
+                array: T[] = iterator.all();
+            return array.length ? array.pop() : null;
+        }
+    }
+
+    function Reverse<T>(): IReverse<T> {
+        return function (): IQuery<T> {
+            var iterator: IIterator<T> = new ReverseIterator<T>(this.iterator);
+            return new Query(iterator);
+        }
+    }
+
+    function Single<T>(): ISingle<T> {
+        return function (func?: IFilter<T>): T {
+            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
+                item: IIteratorResult<T> = iterator.next(),
+                done: boolean = iterator.next().done,
+                value: T = done ? item.value : null;
+            return value;
+        }
+    }
+
+    function Maximum<T>(): IMaximum<T> {
+        var object: any = function () {
+            return this.maximum.by(item => item);
+        }
+        object.by = MaximumBy<T>();
+        return object;
+    }
+
+    function MaximumBy<T>(): IMaximumBy<T> {
+        return function <TKey>(func: IConverter<T, TKey>): IQuery<T> {
+            var item: IIteratorResult<T>,
+                max: TKey,
+                iterator: IIterator<T>;
+
+            while (!item && !item.done) {
+                item = this.iterator.next();
+                if (!item.done && (max == null || max < func(item.value))) {
+                    max = func(item.value);
+                }
+            }
+
+            iterator = new EqualIterator(this.parent, max, func);
+            return new Query(iterator);
+        }
+    }
+
+    function Minimum<T>(): IMaximum<T> {
+        var object: any = function () {
+            return this.minimum.by(item => item);
+        }
+        object.by = MinimumBy<T>();
+        return object;
+    }
+
+    function MinimumBy<T>(): IMinimumBy<T> {
+        return function <TKey>(func: IConverter<T, TKey>): IQuery<T> {
+            var item: IIteratorResult<T>,
+                min: TKey,
+                iterator: IIterator<T>;
+
+            while (!item && !item.done) {
+                item = this.iterator.next();
+                if (!item.done && (min == null || min > func(item.value))) {
+                    min = func(item.value);
+                }
+            }
+
+            iterator = new EqualIterator(this.parent, min, func);
+            return new Query(iterator);
+        }
     }
 
     function All<T>(): IAll<T> {
@@ -403,6 +503,13 @@
         }
     }
 
+    class EqualIterator<T, TKey> extends FilterIterator<T>
+    {
+        constructor(parent: IIterator<T>, key: TKey, func: IConverter<T, TKey>) {
+            super(parent, (item: T) => func(item) == key);
+        }
+    }
+
     class MixIterator<T> extends CombineIterator<T, T, T>
     {
         next(): IIteratorResult<T> {
@@ -461,6 +568,7 @@
             var pair: IPairing<T, TWith>,
                 done: boolean,
                 inner: IIteratorResult<TWith> = this.otherparent.next();
+
             if (inner.done || !this.outer || !this.outer.done) {
                 this.outer = this.parent.next();
                 this.otherparent.reset();
@@ -519,8 +627,7 @@
         }
     }
 
-    class WhileIterator<T> extends ParentIterator<T, T>
-    {
+    class WhileIterator<T> extends ParentIterator<T, T> {
         func: IFilter<T>;
         done: boolean;
         reset(): void { super.reset(); this.done = false; }
@@ -533,6 +640,28 @@
             super(parent);
             this.func = func;
             this.done = false;
+        }
+    }
+
+    class ReverseIterator<T> extends ParentIterator<T, T> {
+        items: T[]
+        reset(): void { super.reset(); this.items = null; }
+        next(): IIteratorResult<T> {
+            var done: boolean,
+                value: T;
+
+            if (this.items == null) {
+                this.items = this.parent.all();
+            }
+
+            done = this.items.length == 0;
+            value = done ? null : this.items.shift();
+
+            return new IteratorResult(value, done);
+        }
+        constructor(parent: IIterator<T>) {
+            super(parent);
+            this.items = null;
         }
     }
 
@@ -560,24 +689,60 @@
         any: IAny<T>;
         as: IAs<T>;
         count: ICount<T>;
+        first: IFirst<T>;
         flatten: IFlatten<T>;
         group: IGroup<T>;
+        last: ILast<T>;
+        maximum: IMaximum<T>;
+        minimum: IMinimum<T>;
         mix: IMix<T>;
+        only: IOnly<T>;
         order: IOrder<T>;
         pair: IPair<T>;
         take: ITake<T>;
+        reverse: IReverse<T>;
+        single: ISingle<T>;
         skip: ISkip<T>;
         unique: IUnique<T>;
         zip: IZip<T>;
-        /*
-        only: IOnly<T>
-        maximum: IMaximum<T>
-        minimum: IMinimum<T>
-        first: IFirst<T>
-        last: ILast<T>
-        single: ISingle<T>
-        reverse: IReverse<T>
-        */
+    }
+
+    interface IOnly<T> {
+        (func?: IFilter<T>): boolean;
+    }
+
+    interface IMaximum<T> {
+        (): IQuery<T>;
+        by: IMaximumBy<T>;
+    }
+
+    interface IMaximumBy<T> {
+        <TKey>(func?: IConverter<T, TKey>): IQuery<T>;
+    }
+
+    interface IMinimum<T> {
+        (): IQuery<T>;
+        by: IMinimumBy<T>;
+    }
+
+    interface IMinimumBy<T> {
+        <TKey>(func?: IConverter<T, TKey>): IQuery<T>;
+    }
+
+    interface IFirst<T> {
+        (func?: IFilter<T>): T;
+    }
+
+    interface ILast<T> {
+        (func?: IFilter<T>): T;
+    }
+
+    interface ISingle<T> {
+        (func?: IFilter<T>): T;
+    }
+
+    interface IReverse<T> {
+        (): IQuery<T>;
     }
 
     interface IAny<T> {
