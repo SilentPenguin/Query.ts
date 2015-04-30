@@ -85,6 +85,8 @@
                 item: IIteratorResult<T>,
                 count: number = 0;
 
+            iterator.reset();
+
             while (!item || !item.done) {
                 item = iterator.next();
                 count += Number(!item.done);
@@ -97,7 +99,11 @@
     function First<T>(): IFirst<T> {
         return (func?: IFilter<T>): T => {
             var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                item: IIteratorResult<T> = iterator.next();
+                item: IIteratorResult<T>;
+
+            iterator.reset();
+            item = iterator.next();
+
             return item.done ? null : item.value;
         }
     }
