@@ -641,7 +641,7 @@
         reset(): void { super.reset(); this.done = false; }
         next(): IIteratorResult<T> {
             var item: IIteratorResult<T> = this.done ? null : this.parent.next();
-            this.done = this.done || this.func(item.value);
+            this.done = this.done || item.done || !this.func(item.value);
             return this.done ? new IteratorResult<T>(null, true) : item;
         }
         constructor(parent: IIterator<T>, func: IFilter<T>) {
