@@ -438,7 +438,7 @@
         reset(): void { super.reset(); this.index = 0; }
         next(): IIteratorResult<T> {
             var item: IIteratorResult<T>;
-            while (!item || !item.done || !this.func(item.value, this.index++)) {
+            while (!item || !item.done && !this.func(item.value, this.index++)) {
                 item = this.parent.next();
             }
             return item;
