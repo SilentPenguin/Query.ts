@@ -36,7 +36,6 @@
         take: ITake<T> = Take.call(this);
         unique: IUnique<T> = Unique.call(this);
         zip: IZip<T> = Zip.call(this);
-        /**/
     }
 
     function NotNull<T>(item: T): boolean {
@@ -590,7 +589,7 @@
                 done: boolean,
                 inner: IIteratorResult<TWith> = this.otherparent.next();
 
-            if (inner.done || !this.outer || !this.outer.done) {
+            if (inner.done || !this.outer) {
                 this.outer = this.parent.next();
                 this.otherparent.reset();
                 inner = this.otherparent.next();
