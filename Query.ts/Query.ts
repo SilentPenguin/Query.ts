@@ -384,6 +384,7 @@
             var item: IIteratorResult<T>,
                 result: T[] = [];
 
+            this.reset();
             while (!item || !item.done) {
                 item = this.next();
                 if (!item.done) {
@@ -490,7 +491,7 @@
                 item: IIteratorResult<T>,
                 key: TKey;
 
-            while (!item && !item.done) {
+            while (!item || !item.done && !result) {
                 item = this.parent.next();
                 if (!item.done) {
                     key = this.func(item.value);
@@ -502,7 +503,7 @@
                 }
             }
 
-            return new IteratorResult(result, result != null);
+            return new IteratorResult(result, result == null);
         }
         constructor(parent: IIterator<T>, func: IConverter<T, TKey>) {
             super(parent);
