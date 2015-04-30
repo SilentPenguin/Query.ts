@@ -246,7 +246,7 @@
     }
 
     class PairQuery<T, TWith> extends Query<IPairing<T, TWith>> implements IPairQuery<T, TWith> {
-        if: IIf<IPairing<T, TWith>> = TakeIf<IPairing<T, TWith>>();
+        if: IIf<IPairing<T, TWith>> = TakeIf.call(this);
         constructor(iterator: IIterator<IPairing<T, TWith>>) { super(iterator) }
     }
 
