@@ -439,7 +439,7 @@
 
     class ConvertIterator<TIn, TOut> extends ParentIterator<TIn, TOut>
     {
-        func: IConverter<TIn, TOut>;
+        private func: IConverter<TIn, TOut>;
         next(reset: boolean = false): IIteratorResult<TOut> {
             if (reset) {
                 this.reset();
@@ -481,6 +481,10 @@
     class FlattenIterator<TIn, TOut> extends ParentIterator<TIn, TOut> {
         private func: IConverter<TIn, TOut[]>;
         private items: TOut[];
+        reset(): void {
+            this.items = null;
+            super.reset();
+        }
         next(reset: boolean = false): IIteratorResult<TOut> {
             if (reset) {
                 this.reset();
@@ -494,10 +498,6 @@
             }
             return new IteratorResult(this.items.length ? this.items.shift() : null, !this.items.length);
         }
-        reset(): void {
-            this.items = null;
-            super.reset();
-        }
         constructor(parent: IIterator<TIn>, func: IConverter<TIn, TOut[]>) {
             super(parent);
             this.func = func;
@@ -509,6 +509,7 @@
     {
         private func: IConverter<T, TKey>;
         private keys: TKey[];
+        reset(): void { super.reset(); this.keys.length = 0; }
         next(reset: boolean = false): IIteratorResult<IGrouping<TKey, T>> {
             if (reset) {
                 this.reset();
@@ -580,7 +581,7 @@
         func: IConverter<T, TKey>;
         items: T[];
         flattened: boolean;
-        reset(): void { this.items.length = 0; this.flattened = false; }
+        reset(): void { super.reset(); this.items.length = 0; this.flattened = false; }
         next(reset: boolean = false): IIteratorResult<T> {
             if (reset) {
                 this.reset();
@@ -664,7 +665,7 @@
             }
 
             done = this.items.length == 0;
-            value = done ? null : this.items.shift();
+            value = done ? null : this.items.pop();
 
             return new IteratorResult(value, done);
         }
@@ -721,6 +722,7 @@
     class UniqueByIterator<T, TKey> extends ParentIterator<T, T> {
         func: IConverter<T, TKey>;
         items: TKey[];
+        reset(): void { super.reset(); this.items.length = 0; }
         next(reset: boolean = false): IIteratorResult<T> {
             if (reset) {
                 this.reset();
@@ -748,7 +750,7 @@
 
     class UniqueIterator<T> extends UniqueByIterator<T, T> {
         constructor(parent: IIterator<T>) {
-            super(parent,(item: T) => item);
+            super(parent, (item: T) => item);
         }
     }
 
