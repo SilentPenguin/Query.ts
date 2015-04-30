@@ -38,11 +38,48 @@
         return item != null;
     }
 
-    function Only<T>(): IOnly<T> {
+    function All<T>(): IAll<T> {
         return function (func?: IFilter<T>): boolean {
-            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func);
-            iterator.next();
-            return iterator.next().done;
+            var result: boolean = true,
+                item: IIteratorResult<boolean>,
+                func: IFilter<T> = func || NotNull,
+                iterator: IIterator<boolean> = new ConvertIterator<T, boolean>(this.iterator, func);
+
+            while (!item || !item.done && result) {
+                result = item.value;
+                item = iterator.next();
+            }
+
+            return result;
+        }
+    }
+
+    function Any<T>(): IAny<T> {
+        return function (func?: IFilter<T>): boolean {
+            var iterator: IIterator<T> = new FilterIterator<T>(this.iterator, func == null ? this.notNullSelector : func);
+            return !iterator.next().done;
+        };
+    }
+
+    function As<T>(): IAs<T> {
+        return function <TOut>(func: IConverter<T, TOut>): IQuery<TOut> {
+            var iterator: IIterator<TOut> = new ConvertIterator(this.iterator, func);
+            return new Query(iterator);
+        }
+    }
+
+    function Count<T>(): ICount<T> {
+        return function (func?: IFilter<T>): number {
+            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
+                item: IIteratorResult<T>,
+                count: number = 0;
+
+            while (!item && !item.done) {
+                item = iterator.next();
+                count += item.done ? 0 : 1;
+            }
+
+            return iterator.all().length;
         }
     }
 
@@ -54,28 +91,38 @@
         }
     }
 
+    function Flatten<T>(): IFlatten<T> {
+        return function <TOut>(func?: IConverter<T, any>): IQuery<TOut> {
+            var iterator: IIterator<TOut> = new FlattenIterator<T, TOut>(this.iterator, func);
+            return new Query(iterator);
+        };
+    }
+
+    function Group<T>(): IGroup<T> {
+        return { by: GroupBy<T>() };
+    }
+
+    function GroupBy<T>(): IGroupBy<T> {
+        return function <TKey>(func: IConverter<T, TKey>): IQuery<IGrouping <TKey, T>> {
+            var iterator: IIterator<IGrouping<TKey, T>> = new GroupByIterator(this.iterator, func);
+            return new Query(iterator);
+        }
+    }
+    
+    class Grouping<TKey, TValue> implements IGrouping<TKey, TValue> {
+        key: TKey;
+        values: IQuery<TValue>;
+        constructor(key: TKey, values: IQuery<TValue>) {
+            this.key = key;
+            this.values = values;
+        }
+    }
+
     function Last<T>(): ILast<T> {
         return function (func?: IFilter<T>): T {
             var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
                 array: T[] = iterator.all();
             return array.length ? array.pop() : null;
-        }
-    }
-
-    function Reverse<T>(): IReverse<T> {
-        return function (): IQuery<T> {
-            var iterator: IIterator<T> = new ReverseIterator<T>(this.iterator);
-            return new Query(iterator);
-        }
-    }
-
-    function Single<T>(): ISingle<T> {
-        return function (func?: IFilter<T>): T {
-            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                item: IIteratorResult<T> = iterator.next(),
-                done: boolean = iterator.next().done,
-                value: T = done ? item.value : null;
-            return value;
         }
     }
 
@@ -131,78 +178,6 @@
         }
     }
 
-    function All<T>(): IAll<T> {
-        return function (func?: IFilter<T>): boolean {
-            var result: boolean = true,
-                item: IIteratorResult<boolean>,
-                func: IFilter<T> = func || NotNull,
-                iterator: IIterator<boolean> = new ConvertIterator<T, boolean>(this.iterator, func);
-
-            while (!item || !item.done && result) {
-                result = item.value;
-                item = iterator.next();
-            }
-
-            return result;
-        }
-    }
-
-    function Any<T>(): IAny<T> {
-        return function (func?: IFilter<T>): boolean {
-            var iterator: IIterator<T> = new FilterIterator<T>(this.iterator, func == null ? this.notNullSelector : func);
-            return !iterator.next().done;
-        };
-    }
-
-    function As<T>(): IAs<T> {
-        return function <TOut>(func: IConverter<T, TOut>): IQuery<TOut> {
-            var iterator: IIterator<TOut> = new ConvertIterator(this.iterator, func);
-            return new Query(iterator);
-        }
-    }
-
-    function Count<T>(): ICount<T> {
-        return function (func?: IFilter<T>): number {
-            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                item: IIteratorResult<T>,
-                count: number = 0;
-
-            while (!item && !item.done) {
-                item = iterator.next();
-                count += item.done ? 0 : 1;
-            }
-
-            return iterator.all().length;
-        }
-    }
-
-    function Flatten<T>(): IFlatten<T> {
-        return function <TOut>(func?: IConverter<T, any>): IQuery<TOut> {
-            var iterator: IIterator<TOut> = new FlattenIterator<T, TOut>(this.iterator, func);
-            return new Query(iterator);
-        };
-    }
-
-    function Group<T>(): IGroup<T> {
-        return { by: GroupBy<T>() };
-    }
-
-    function GroupBy<T>(): IGroupBy<T> {
-        return function <TKey>(func: IConverter<T, TKey>): IQuery<IGrouping <TKey, T>> {
-            var iterator: IIterator<IGrouping<TKey, T>> = new GroupByIterator(this.iterator, func);
-            return new Query(iterator);
-        }
-    }
-    
-    class Grouping<TKey, TValue> implements IGrouping<TKey, TValue> {
-        key: TKey;
-        values: IQuery<TValue>;
-        constructor(key: TKey, values: IQuery<TValue>) {
-            this.key = key;
-            this.values = values;
-        }
-    }
-
     function Mix<T>(): IMix<T> {
         return { with: MixWith<T>() };
     }
@@ -212,6 +187,14 @@
             var iterator: IIterator<T> = new MixIterator(this.iterator, array.iterator);
             return new Query(iterator);
         };
+    }
+
+    function Only<T>(): IOnly<T> {
+        return function (func?: IFilter<T>): boolean {
+            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func);
+            iterator.next();
+            return iterator.next().done;
+        }
     }
 
     function Order<T>(): IOrder<T> {
@@ -251,6 +234,23 @@
     class PairQuery<T, TWith> extends Query<IPairing<T, TWith>> implements IPairQuery<T, TWith> {
         if: IIf<IPairing<T, TWith>> = TakeIf<IPairing<T, TWith>>();
         constructor(iterator: IIterator<IPairing<T, TWith>>) { super(iterator) }
+    }
+
+    function Reverse<T>(): IReverse<T> {
+        return function (): IQuery<T> {
+            var iterator: IIterator<T> = new ReverseIterator<T>(this.iterator);
+            return new Query(iterator);
+        }
+    }
+
+    function Single<T>(): ISingle<T> {
+        return function (func?: IFilter<T>): T {
+            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
+                item: IIteratorResult<T> = iterator.next(),
+                done: boolean = iterator.next().done,
+                value: T = done ? item.value : null;
+            return value;
+        }
     }
 
     function Take<T>(): ITake<T> {
