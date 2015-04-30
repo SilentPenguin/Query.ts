@@ -11,9 +11,11 @@
 
     export class Query<T> implements IQuery<T> {
         iterator: IIterator<T>;
+
         constructor(iterator: IIterator<T>) {
             this.iterator = iterator;
         }
+
         all: IAll<T> = All.call(this);
         any: IAny<T> = Any.call(this);
         as: IAs<T> = As.call(this);
@@ -34,6 +36,7 @@
         take: ITake<T> = Take.call(this);
         unique: IUnique<T> = Unique.call(this);
         zip: IZip<T> = Zip.call(this);
+        /**/
     }
 
     function NotNull<T>(item: T): boolean {
@@ -206,7 +209,11 @@
     }
 
     function Order<T>(): IOrder<T> {
-        return { by: OrderBy.call(this) };
+        var object: any = (): IOrdered<T> => {
+            return this.order.by(item => item);
+        };
+        object.by = OrderBy.call(this);
+        return object;
     }
 
     function OrderBy<T>(): IOrderBy<T> {
@@ -218,7 +225,7 @@
 
     class Ordered<T> extends Query<T> implements IOrdered<T>
     {
-        then: IOrder<T>;
+        then: IOrder<T> = Order.call(this);
         constructor(iterator: IIterator<T>) { super(iterator) }
     }
 
@@ -542,13 +549,19 @@
         flattened: boolean;
         reset(): void { this.items.length = 0; this.flattened = false; }
         next(): IIteratorResult<T> {
+            var value: T,
+                done: boolean;
+
             if (!this.flattened) {
                 this.items = this.parent.all();
-                this.items.sort(this.sort);
+                this.items.sort((a:T, b: T): number => this.sort(a, b));
                 this.flattened = this.items.length > 0;
             }
 
-            return new IteratorResult(this.items.length ? this.items.shift() : null, this.items.length > 0);
+            done = !this.items.length;
+            value = done ? null : this.items.shift();
+
+            return new IteratorResult(value, done);
         }
         sort(a: T, b: T): number {
             var akey: TKey = this.func(a),
@@ -827,15 +840,16 @@
     }
 
     interface IOrder<T> {
+        (): IOrdered<T>;
         by: IOrderBy<T>;
-    }
-
-    interface IOrdered<T> extends IQuery<T> {
-        then: IOrder<T>;
     }
 
     interface IOrderBy<T> {
         <TKey>(func: IConverter<T, TKey>): IOrdered<T>;
+    }
+
+    interface IOrdered<T> extends IQuery<T> {
+        then: IOrder<T>;
     }
 
     interface IPair<T> {
