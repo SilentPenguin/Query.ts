@@ -157,6 +157,8 @@
                 max: TKey,
                 iterator: IIterator<T>;
 
+            this.iterator.reset();
+
             while (!item || !item.done) {
                 item = this.iterator.next();
                 if (!item.done && (max == null || max < func(item.value))) {
@@ -164,7 +166,7 @@
                 }
             }
 
-            iterator = new EqualIterator(this.parent, max, func);
+            iterator = new EqualIterator(this.iterator, max, func);
             return new Query(iterator);
         }
     }
@@ -183,6 +185,8 @@
                 min: TKey,
                 iterator: IIterator<T>;
 
+            this.iterator.reset();
+
             while (!item || !item.done) {
                 item = this.iterator.next();
                 if (!item.done && (min == null || min > func(item.value))) {
@@ -190,7 +194,7 @@
                 }
             }
 
-            iterator = new EqualIterator(this.parent, min, func);
+            iterator = new EqualIterator(this.iterator, min, func);
             return new Query(iterator);
         }
     }
