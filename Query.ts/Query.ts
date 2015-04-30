@@ -43,15 +43,16 @@
     }
 
     function All<T>(): IAll<T> {
-        return (func?: IFilter<T>): boolean => {
+        return (func: IFilter<T>): boolean => {
             var result: boolean = true,
-                item: IIteratorResult<boolean>,
-                func: IFilter<T> = func || NotNull,
-                iterator: IIterator<boolean> = new ConvertIterator<T, boolean>(this.iterator, func);
+                item: IIteratorResult<T>,
+                func: IFilter<T> = func || NotNull;
 
             while (!item || !item.done && result) {
-                result = item.value;
-                item = iterator.next();
+                item = this.iterator.next();
+                if (!item.done) {
+                    result = Boolean(func(item.value));
+                }
             }
 
             return result;
@@ -60,7 +61,7 @@
 
     function Any<T>(): IAny<T> {
         return (func?: IFilter<T>): boolean => {
-            var iterator: IIterator<T> = new FilterIterator<T>(this.iterator, func == null ? this.notNullSelector : func);
+            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func);
             return !iterator.next().done;
         };
     }
@@ -84,12 +85,12 @@
                 item: IIteratorResult<T>,
                 count: number = 0;
 
-            while (!item && !item.done) {
+            while (!item || !item.done) {
                 item = iterator.next();
-                count += item.done ? 0 : 1;
+                count += Number(!item.done);
             }
 
-            return iterator.all().length;
+            return count;
         }
     }
 
@@ -752,7 +753,7 @@
     }
 
     interface IAll<T> {
-        (func?: IFilter<T>): boolean;
+        (func: IFilter<T>): boolean;
     }
 
     interface IAs<T> {
