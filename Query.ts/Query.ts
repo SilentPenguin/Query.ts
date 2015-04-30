@@ -99,10 +99,7 @@
     function First<T>(): IFirst<T> {
         return (func?: IFilter<T>): T => {
             var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                item: IIteratorResult<T>;
-
-            iterator.reset();
-            item = iterator.next();
+                item: IIteratorResult<T> = iterator.next(true);
 
             return item.done ? null : item.value;
         }
@@ -271,7 +268,7 @@
     function Single<T>(): ISingle<T> {
         return (func?: IFilter<T>): T => {
             var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                item: IIteratorResult<T> = iterator.next(),
+                item: IIteratorResult<T> = iterator.next(true),
                 done: boolean = iterator.next().done,
                 value: T = done ? item.value : null;
             return value;
@@ -417,9 +414,14 @@
         array: T[];
         index: number;
         reset(): void { this.index = 0; }
-        next(): IIteratorResult<T> {
+        next(reset: boolean = false): IIteratorResult<T> {
+            if (reset) {
+                this.reset();
+            }
+
             var done: boolean = this.index >= this.array.length,
                 value: T = done ? null : this.array[this.index++];
+
             return new IteratorResult(value, done);
         }
         constructor(array: T[]) {
@@ -438,7 +440,11 @@
     class ConvertIterator<TIn, TOut> extends ParentIterator<TIn, TOut>
     {
         func: IConverter<TIn, TOut>;
-        next(): IIteratorResult<TOut> {
+        next(reset: boolean = false): IIteratorResult<TOut> {
+            if (reset) {
+                this.reset();
+            }
+
             var item: IIteratorResult<TIn> = this.parent.next(),
                 done: boolean = item.done,
                 result: TOut = done ? null : this.func(item.value);
@@ -454,7 +460,11 @@
         private func: IFilter<T>;
         private index: number;
         reset(): void { super.reset(); this.index = 0; }
-        next(): IIteratorResult<T> {
+        next(reset: boolean = false): IIteratorResult<T> {
+            if (reset) {
+                this.reset();
+            }
+
             var item: IIteratorResult<T>;
             while (!item || !item.done && !this.func(item.value, this.index++)) {
                 item = this.parent.next();
@@ -471,7 +481,11 @@
     class FlattenIterator<TIn, TOut> extends ParentIterator<TIn, TOut> {
         private func: IConverter<TIn, TOut[]>;
         private items: TOut[];
-        next(): IIteratorResult<TOut> {
+        next(reset: boolean = false): IIteratorResult<TOut> {
+            if (reset) {
+                this.reset();
+            }
+
             if (!this.items.length) {
                 var item: IIteratorResult<TIn> = this.parent.next();
                 if (!item.done) {
@@ -495,7 +509,11 @@
     {
         private func: IConverter<T, TKey>;
         private keys: TKey[];
-        next(): IIteratorResult<IGrouping<TKey, T>> {
+        next(reset: boolean = false): IIteratorResult<IGrouping<TKey, T>> {
+            if (reset) {
+                this.reset();
+            }
+
             var result: IGrouping<TKey, T>,
                 query: IQuery<T>,
                 item: IIteratorResult<T>,
@@ -538,7 +556,11 @@
 
     class MixIterator<T> extends CombineIterator<T, T, T>
     {
-        next(): IIteratorResult<T> {
+        next(reset: boolean = false): IIteratorResult<T> {
+            if (reset) {
+                this.reset();
+            }
+
             var item: IIteratorResult <T> = this.parent.next();
 
             if (item.done) {
@@ -559,7 +581,11 @@
         items: T[];
         flattened: boolean;
         reset(): void { this.items.length = 0; this.flattened = false; }
-        next(): IIteratorResult<T> {
+        next(reset: boolean = false): IIteratorResult<T> {
+            if (reset) {
+                this.reset();
+            }
+
             var value: T,
                 done: boolean;
 
@@ -596,7 +622,11 @@
     class PairIterator<T, TWith> extends CombineIterator<T, TWith, IPairing<T, TWith>> {
         private outer: IIteratorResult<T>;
         reset(): void { super.reset(); this.outer = null; }
-        next(): IIteratorResult<IPairing<T, TWith>> {
+        next(reset: boolean = false): IIteratorResult<IPairing<T, TWith>> {
+            if (reset) {
+                this.reset();
+            }
+
             var pair: IPairing<T, TWith>,
                 done: boolean,
                 inner: IIteratorResult<TWith> = this.otherparent.next();
@@ -621,7 +651,11 @@
     class ReverseIterator<T> extends ParentIterator<T, T> {
         items: T[]
         reset(): void { super.reset(); this.items = null; }
-        next(): IIteratorResult<T> {
+        next(reset: boolean = false): IIteratorResult<T> {
+            if (reset) {
+                this.reset();
+            }
+
             var done: boolean,
                 value: T;
 
@@ -644,7 +678,11 @@
         func: IFilter<T>;
         done: boolean;
         reset(): void { super.reset(); this.done = false; }
-        next(): IIteratorResult<T> {
+        next(reset: boolean = false): IIteratorResult<T> {
+            if (reset) {
+                this.reset();
+            }
+
             var item: IIteratorResult<T>;
             while (!item || !this.done) {
                 item = this.parent.next();
@@ -664,7 +702,11 @@
         func: IFilter<T>;
         done: boolean;
         reset(): void { super.reset(); this.done = false; }
-        next(): IIteratorResult<T> {
+        next(reset: boolean = false): IIteratorResult<T> {
+            if (reset) {
+                this.reset();
+            }
+
             var item: IIteratorResult<T> = this.done ? null : this.parent.next();
             this.done = item.done || !this.func(item.value);
             return this.done ? new IteratorResult<T>(null, true) : item;
@@ -679,7 +721,11 @@
     class UniqueByIterator<T, TKey> extends ParentIterator<T, T> {
         func: IConverter<T, TKey>;
         items: TKey[];
-        next(): IIteratorResult<T> {
+        next(reset: boolean = false): IIteratorResult<T> {
+            if (reset) {
+                this.reset();
+            }
+
             var item: IIteratorResult<T> = this.parent.next(),
                 key: TKey;
             while (!item.done) {
@@ -707,7 +753,11 @@
     }
 
     class ZipIterator<T, TWith> extends CombineIterator<T, TWith, IZipping<T, TWith>>{
-        next(): IIteratorResult<IZipping<T, TWith>> {
+        next(reset: boolean = false): IIteratorResult<IZipping<T, TWith>> {
+            if (reset) {
+                this.reset();
+            }
+
             var outer: IIteratorResult<T> = this.parent.next(),
                 inner: IIteratorResult<TWith> = this.otherparent.next(),
                 done: boolean = inner.done || outer.done,
@@ -726,7 +776,7 @@
     export interface IIterator<T> {
         reset(): void;
         current(): IIteratorResult<T>;
-        next(): IIteratorResult<T>;
+        next(reset?: boolean): IIteratorResult<T>;
         all(): T[];
     }
 
