@@ -113,4 +113,5 @@ Ensures that every item in the array is unique. This effectively the same as cal
 #####```unique.by<TKey>(func: IConverter<T, TKey>): IQuery<T>```
 Returns a query set, where only the first item to match the given key converter is included.
 #####```zip.with<TWith>(array: TWith[]): IQuery<IPairing<T, TWith>>```
+#####```zip.with<TWith>(array: IQuery<TWith>): IQuery<IPairing<T, TWith>>```
 returns a set where each item from the original set has been included with the corresponding item in the provided set. This continues either set is empty, and then the remaining items on the counterpart set are discarded.
