@@ -11,7 +11,7 @@
 all(func: IFilter<T>) : boolean
 ```
 
-Tests if all the items in an array match a given conditional.
+>Tests if all the items in an array match a given conditional.
 
 ***
 
@@ -21,7 +21,7 @@ Tests if all the items in an array match a given conditional.
 any(func: IFilter<T>) : boolean
 ```
 
-Tests for any objects that meet a condition. The filter is used to test if the items in an array any of the items match a given condition. If no function is given, all objects are selected, and the function returns true if the Query is not empty.
+>Tests for any objects that meet a condition. The filter is used to test if the items in an array any of the items match a given condition. If no function is given, all objects are selected, and the function returns true if the Query is not empty.
 
 ***
 
@@ -31,7 +31,7 @@ Tests for any objects that meet a condition. The filter is used to test if the i
 as<TOut>(func: IConverter<T, TOut>) : IQuery<TOut>
 ```
 
-Converts a single iteration object from one type to another. This can involve either selection of a property on the item or construction of a new item. Whatever the converter returns will be used as the new IQuery.
+>Converts a single iteration object from one type to another. This can involve either selection of a property on the item or construction of a new item. Whatever the converter returns will be used as the new IQuery.
 
 ***
 
