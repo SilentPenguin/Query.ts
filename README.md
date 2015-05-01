@@ -58,7 +58,7 @@ Query.from(array);
 |```maximum.by(func?: IConverter<T, Key>): IQuery<T>``` | Returns all Ts that have the maximum value provided by the converter. |
 |```minimum(): IQuery<T>``` | Returns the matching minimum of ```T```s, using direct comparison. This is the same as calling ```minimum.by(item => item)```. |
 |```minimum.by(func?: IConverter<T, Key>): IQuery<T>``` | Returns all Ts that have the minimum value provided by the converter. |
-|```mix.with(array: T[]>): IQuery<T>```<br>```mix.with(array: IQuery<T>>): IQuery<T>``` | The results of the provided array will be returned after the source array. |
+|```mix.with(array: T[]): IQuery<T>```<br>```mix.with(array: IQuery<T>>): IQuery<T>``` | The results of the provided array will be returned after the source array. |
 |```only(func?: IFilter<T>): boolean``` | checks that there is only one item that matches the filter. If no filter is given, the query set must contain only one item. |
 |```order.by(func: IConverter<T, TKey>): IQuery<T>``` | Orders a query set based on the key provided. For this operation, the entire set must be iterated before a result can be returned. |
 |```order.by(func: IConverter<T, TKey>)then.by(func: IConverter<T, TKey>): IQuery<T>``` | Further orders an ordered set based on an additional key if the previous keys are equal. Then.by can be linked as many times as you wish. |
