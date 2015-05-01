@@ -109,7 +109,7 @@
 
     function Flatten<T>(): IFlatten<T> {
         return <TOut>(func?: IConverter<T, any>): IQuery<TOut> => {
-            var iterator: IIterator<TOut> = new FlattenIterator<T, TOut>(this.iterator, func);
+            var iterator: IIterator<TOut> = new FlattenIterator<T, TOut>(this.iterator, func != null ? func : item => item);
             return new Query(iterator);
         };
     }
@@ -485,28 +485,47 @@
 
     class FlattenIterator<TIn, TOut> extends ParentIterator<TIn, TOut> {
         private func: IConverter<TIn, TOut[]>;
-        private items: TOut[];
+        private items: IIterator<TOut>;
         reset(): void {
-            this.items = null;
             super.reset();
+            this.items = null;
         }
         next(reset: boolean = false): IIteratorResult<TOut> {
             if (reset) {
                 this.reset();
             }
 
-            if (!this.items.length) {
-                var item: IIteratorResult<TIn> = this.parent.next();
-                if (!item.done) {
-                    this.items = this.func(item.value);
+            var item: IIteratorResult<TIn>,
+                result: IIteratorResult<TOut>,
+                done: boolean;
+
+            while (!result) {
+                if (!this.items) {
+                    item = this.parent.next();
+                    if (item.done) {
+                        result = new IteratorResult(null, true);
+                        break;
+                    } else {
+                        this.items = new ArrayIterator(this.func(item.value));
+                    }
+                }
+
+                if (this.items) {
+                    result = this.items.next();
+                }
+
+                if (result.done) {
+                    this.items = null;
+                    result = null;
                 }
             }
-            return new IteratorResult(this.items.length ? this.items.shift() : null, !this.items.length);
+
+            return result;
         }
         constructor(parent: IIterator<TIn>, func: IConverter<TIn, TOut[]>) {
             super(parent);
             this.func = func;
-            this.items = [];
+            this.items = null;
         }
     }
 
