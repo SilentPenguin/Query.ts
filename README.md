@@ -41,7 +41,7 @@ Tests for any objects that meet a condition. The filter is used to test if the i
 #####```as<TOut>(func: IConverter<T, TOut>) : IQuery<TOut>```
 Converts a single iteration object from one type to another. This can involve either selection of a property on the item or construction of a new item. Whatever the converter returns will be used as the new IQuery.
 #####```as.array() : T[]```
-Converts a query into an array.
+Converts a query set into an array.
 #####```count(func?: IFilter<T>): number```
 Returns the number of items in the query set. The count will only be increased by items that match the filter. If no filter is given, all items will be counted.
 #####```first(func?: IFilter<T>): T```
