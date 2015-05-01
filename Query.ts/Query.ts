@@ -10,6 +10,7 @@
     };
 
     //TODO: convert .all and .any to .are.all and .are.any
+    //TODO: convert .only .all and .any to .has.only .has.any and .has.any
 
     export class Query<T> implements IQuery<T> {
         iterator: IIterator<T>;
@@ -213,7 +214,7 @@
     function Only<T>(): IOnly<T> {
         return (func?: IFilter<T>): boolean => {
             var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func);
-            iterator.next();
+            iterator.next(true);
             return iterator.next().done;
         }
     }
@@ -306,7 +307,18 @@
             return new Query(iterator);
         };
         if (!base) {
-            object.not = TakeWhile.call(this, true);
+            object.not = SkipUntil.call(this, true);
+        }
+        return object;
+    }
+
+    function SkipUntil<T>(base?: boolean): IWhile<T> {
+        var object: any = (func: IFilter<T>): IQuery<T> => {
+            var iterator = new SkipUntilIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        if (!base) {
+            object.not = SkipWhile.call(this, true);
         }
         return object;
     }
@@ -338,7 +350,18 @@
             return new Query(iterator);
         };
         if (!base) {
-            object.not = SkipWhile.call(this, true);
+            object.not = TakeUntil.call(this, true);
+        }
+        return object;
+    }
+
+    function TakeUntil<T>(base?: boolean): IWhile<T> {
+        var object: any = (func: IFilter<T>): IQuery<T> => {
+            var iterator = new TakeUntilIterator(this.iterator, func);
+            return new Query(iterator);
+        };
+        if (!base) {
+            object.not = TakeWhile.call(this, true);
         }
         return object;
     }
@@ -723,6 +746,12 @@
         }
     }
 
+    class SkipUntilIterator<T> extends SkipWhileIterator<T> {
+        constructor(parent: IIterator<T>, func: IFilter<T>) {
+            super(parent,(item: T) => !func(item));
+        }
+    }
+
     class TakeWhileIterator<T> extends ParentIterator<T, T> {
         func: IFilter<T>;
         done: boolean;
@@ -740,6 +769,12 @@
             super(parent);
             this.func = func;
             this.done = false;
+        }
+    }
+
+    class TakeUntilIterator<T> extends TakeWhileIterator<T> {
+        constructor(parent: IIterator<T>, func: IFilter<T>) {
+            super(parent, (item: T) => !func(item));
         }
     }
 
