@@ -89,7 +89,11 @@ Excludes items that do not match the given filter.
 #####```skip.while(func: IFilter<T>): IQuery<T>```
 Excludes items from the given query set while the given filter is met.
 #####```skip.while.not(func: IFilter<T>): IQuery<T>```
+Effectively the same as calling ```.skip.until```
+#####```skip.until(func: IFilter<T>): IQuery<T>```
 Excludes items from the given query set until the given filter is met.
+#####```skip.until.not(func: IFilter<T>): IQuery<T>```
+Effectively the same as calling ```.skip.while```
 #####```take(count: number): IQuery<T>```
 Includes a given number of items, returning a query set that contains only those items.
 #####```take.if(func: IFilter<T>): IQuery<T>```
@@ -99,7 +103,11 @@ Includes items that do not match the given filter.
 #####```take.while(func: IFilter<T>): IQuery<T>```
 Includes items from the given query set while the given filter is met.
 #####```take.while.not(func: IFilter<T>): IQuery<T>```
+Effectively the same as calling ```.take.until```
+#####```take.until(func: IFilter<T>): IQuery<T>```
 Includes items from the given query set until the given filter is met.
+#####```take.until.not(func: IFilter<T>): IQuery<T>```
+Effectively the same as calling ```.take.while```
 #####```unique(): IQuery<T>```
 Ensures that every item in the array is unique. This effectively the same as calling ```.unique.by(item => item)```
 #####```unique.by<TKey>(func: IConverter<T, TKey>): IQuery<T>```
