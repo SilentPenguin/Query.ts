@@ -9,6 +9,8 @@
         return new Query(iterator);
     };
 
+    //TODO: convert .all and .any to .are.all and .are.any
+
     export class Query<T> implements IQuery<T> {
         iterator: IIterator<T>;
 
@@ -201,8 +203,9 @@
     }
 
     function MixWith<T>(): IMixWith<T> {
-        return (array: IQuery<T>): IQuery<T> => {
-            var iterator: IIterator<T> = new MixIterator(this.iterator, array.iterator);
+        return (array: any): IQuery<T> => {
+            var arrayIterator: IIterator<T> = array.iterator != null ? array.iterator : new ArrayIterator(array),
+                iterator: IIterator<T> = new MixIterator(this.iterator, arrayIterator);
             return new Query(iterator);
         };
     }
@@ -241,8 +244,9 @@
     }
 
     function PairWith<T>(): IPairWith<T> {
-        return <T, TWith>(array: IQuery<TWith>): IPairQuery<T, TWith> => {
-            var iterator: IIterator<IPairing<T, TWith>> = new PairIterator<T, TWith>(this.iterator, array.iterator);
+        return <TWith>(array: any): IPairQuery<T, TWith> => {
+            var arrayIterator: IIterator<TWith> = array.iterator != null ? array.iterator : new ArrayIterator(array),
+                iterator: IIterator<IPairing<T, TWith>> = new PairIterator<T, TWith>(this.iterator, arrayIterator);
             return new PairQuery(iterator);
         };
     }
@@ -360,8 +364,9 @@
     }
 
     function ZipWith<T>(): IZipWith<T> {
-        return <TWith>(array: IQuery<TWith>): IZipQuery<T, TWith> => {
-            var iterator: IIterator<IZipping<T, TWith>> = new ZipIterator<T, TWith>(this.iterator, array.iterator);
+        return <TWith>(array: any): IZipQuery<T, TWith> => {
+            var arrayIterator: IIterator<TWith> = array.iterator != null ? array.iterator : new ArrayIterator(array),
+                iterator: IIterator<IZipping<T, TWith>> = new ZipIterator<T, TWith>(this.iterator, arrayIterator);
             return new ZipQuery(iterator);
         };
     }
@@ -891,6 +896,7 @@
     }
 
     interface IMixWith<T> {
+        (array: T[]): IQuery<T>;
         (array: IQuery<T>): IQuery<T>;
     }
 
@@ -920,6 +926,7 @@
     }
 
     interface IPairWith<T> {
+        <T, TWith>(array: TWith[]): IPairQuery<T, TWith>;
         <T, TWith>(array: IQuery<TWith>): IPairQuery<T, TWith>;
     }
 
@@ -983,6 +990,7 @@
     }
 
     interface IZipWith<T> {
+        <T, TWith>(array: TWith[]): IZipQuery<T, TWith>;
         <T, TWith>(array: IQuery<TWith>): IZipQuery<T, TWith>;
     }
 
