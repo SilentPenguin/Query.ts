@@ -18,7 +18,7 @@ Now that you have seen how a typical query might look, you are hopefully itching
 ##Interfaces
 ###Objects
 #####```IQuery<T>```
-```IQuery<T>``` is the lifeblood of the library, and is returned by most method chains, alowing you to query while you query. Each ```IQuery<T>``` hides behind it a chain of iterators, with the evaluation of each iterator only being resolved when necessary.
+```IQuery<T>``` is the lifeblood of the library, and is returned by most method chains, allowing you to query while you query. Each ```IQuery<T>``` hides behind it a chain of iterators, with the evaluation of each iterator only being resolved when necessary.
 #####```IIterator<T>```
 ```IIterator<T>``` represents an iterable object. IQuerys are wrappers to IIterators, and the chainable api calls will return a new IQuery with a new IIterator inside it.
 ###Function Callbacks
