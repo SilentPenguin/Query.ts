@@ -1,7 +1,7 @@
 # Query.ts
 Query.ts is a library for simplifying queries to arrays while maintaining readability.
 Query.ts is implemented in typescript and primarily intended for use with typescript. As a result it can be used with javascript, but for the smoothest usage, it relies on interface definitions to improve ease of implementing, along with intellisense to aid with method discovery.
-## What does Query.ts look like?
+## What could your queries look like?
 Inspired by C#'s linq, it uses similar API ideas, but instead pairs the api down to a more readable query syntax style. Your queries could look something like this:
 ```typescript
 var items: number[] = [2, 1, 4, 3, 6, 5];
