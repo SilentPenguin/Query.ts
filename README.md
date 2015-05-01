@@ -1,3 +1,40 @@
+* [All](#all)
+* [Any](#any)
+* [As](#as)
+
+
+***
+
+### All
+
+```typescript
+all(func: IFilter<T>) : boolean
+```
+
+Tests if all the items in an array match a given conditional.
+
+***
+
+### Any
+
+```typescript
+any(func: IFilter<T>) : boolean
+```
+
+Tests for any objects that meet a condition. The filter is used to test if the items in an array any of the items match a given condition. If no function is given, all objects are selected, and the function returns true if the Query is not empty.
+
+***
+
+### As
+
+```typescript
+as<TOut>(func: IConverter<T, TOut>) : IQuery<TOut>
+```
+
+Converts a single iteration object from one type to another. This can involve either selection of a property on the item or construction of a new item. Whatever the converter returns will be used as the new IQuery.
+
+***
+
 # Query.ts
 Query.ts is a library for simplifying queries to arrays while maintaining readability.
 Query.ts is implemented in typescript and primarily intended for use with typescript. As a result it can be used with javascript, but for the smoothest usage, it relies on interface definitions to improve ease of implementing, along with intellisense to aid with method discovery.
