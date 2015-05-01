@@ -271,10 +271,9 @@
     }
 
     function Single<T>(): ISingle<T> {
-        return (func?: IFilter<T>): T => {
-            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                item: IIteratorResult<T> = iterator.next(true),
-                done: boolean = iterator.next().done,
+        return (): T => {
+            var item: IIteratorResult<T> = this.iterator.next(true),
+                done: boolean = this.iterator.next().done,
                 value: T = done ? item.value : null;
             return value;
         }
@@ -287,6 +286,7 @@
         }
         object.if = SkipIf.call(this);
         object.while = SkipWhile.call(this);
+        object.until = SkipUntil.call(this);
         return object;
     }
 
@@ -330,6 +330,7 @@
         }
         object.if = TakeIf.call(this);
         object.while = TakeWhile.call(this);
+        object.until = TakeUntil.call(this);
         return object;
     }
 
@@ -1005,6 +1006,7 @@
         (count: number): IQuery<T>;
         if: IIf<T>;
         while: IWhile<T>;
+        until: IUntil<T>;
     }
 
     interface ISkipped<T> extends IQuery<T> {
@@ -1017,6 +1019,7 @@
         (count: number): IQuery<T>;
         if: IIf<T>;
         while: IWhile<T>;
+        until: IUntil<T>;
     }
 
     interface ITaken<T> extends IQuery<T> {
@@ -1032,6 +1035,11 @@
 
     interface IUniqueBy<T> {
         <TKey>(func: IConverter<T, TKey>): IQuery<T>;
+    }
+
+    interface IUntil<T> {
+        (func: IFilter<T>): IQuery<T>;
+        not: INot<T>;
     }
 
     interface IWhile<T> {

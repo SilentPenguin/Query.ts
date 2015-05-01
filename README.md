@@ -78,8 +78,8 @@ Pairs each item with every other item in the set retaining the order of the sour
 Performs the same action as pairing, however the pair is tested using the filter before being included in the set.
 #####```reverse(): IQuery<T>```
 The items from the set are returned in reverse order.
-#####```single(func?: IFilter<T>): T```
-Returns a single value if only one item matches the function, otherwise returns null. If no filter is given, the set must contain exactly one value.
+#####```single(): T```
+Returns a single value if the set contains only one item, otherwise returns null.
 #####```skip(count: number): IQuery<T>```
 skips over a given number of items, returning a query set that excludes those items.
 #####```skip.if(func: IFilter<T>): IQuery<T>```
