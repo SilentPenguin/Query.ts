@@ -29,6 +29,14 @@ Query.from(array);
 ```
 ##Interfaces
 
+###Function Callbacks
+
+####```IFilter<T>```
+```IFilter<T>``` matches the signature ```<T>(value: T): boolean```. This function is used to decide if a specific element is applicable for the current action. This means it is often used in decisions.
+
+####```IConverter<TIn, TOut>```
+```IConverter<TIn, TOut>``` matches the signature ```<TIn, TOut>(value: TIn): TOut```. This function is used to mutate an object from one type to another. This means it is often used directly by the user, providing the return result the user expects, or indirectly, by selecting a key or value to use in a test.
+
 ###Objects
 
 ####```IQuery<T>```
@@ -86,11 +94,3 @@ Query.from(array);
 - ```all(): T[]``` Returns all the items an iterator would normally return, as an array.
 - ```reset(): void``` Resets the iterator to its initial state prior to any iteration.
 - ```next(reset?: boolean): IIteratorResult<T>``` Returns the next iteration. If reset is true, ```reset()``` will also be called prior to fetching the next item.
-
-###Function Callbacks
-
-####```IFilter<T>```
-```IFilter<T>``` matches the signature ```<T>(value: T): boolean```. This function is used to decide if a specific element is applicable for the current action. This means it is often used in decisions.
-
-####```IConverter<TIn, TOut>```
-```IConverter<TIn, TOut>``` matches the signature ```<TIn, TOut>(value: TIn): TOut```. This function is used to mutate an object from one type to another. This means it is often used directly by the user, providing the return result the user expects, or indirectly, by selecting a key or value to use in a test.
