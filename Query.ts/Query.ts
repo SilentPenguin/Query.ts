@@ -9,7 +9,6 @@
         return new Query(iterator);
     };
 
-    //TODO: convert .all and .any to .are.all and .are.any
     //TODO: convert .only .all and .any to .has.only .has.any and .has.any
 
     export class Query<T> implements IQuery<T> {
@@ -83,15 +82,14 @@
     }
 
     function Count<T>(): ICount<T> {
-        return (func?: IFilter<T>): number => {
-            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                item: IIteratorResult<T>,
+        return (): number => {
+            var item: IIteratorResult<T>,
                 count: number = 0;
 
-            iterator.reset();
+            this.iterator.reset();
 
             while (!item || !item.done) {
-                item = iterator.next();
+                item = this.iterator.next();
                 count += Number(!item.done);
             }
 
@@ -100,10 +98,8 @@
     }
 
     function First<T>(): IFirst<T> {
-        return (func?: IFilter<T>): T => {
-            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                item: IIteratorResult<T> = iterator.next(true);
-
+        return (): T => {
+            var item: IIteratorResult<T> = this.iterator.next(true);
             return item.done ? null : item.value;
         }
     }
@@ -136,15 +132,14 @@
     }
 
     function Last<T>(): ILast<T> {
-        return (func?: IFilter<T>): T => {
-            var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func),
-                array: T[] = iterator.all();
+        return (): T => {
+            var array: T[] = this.iterator.all();
             return array.length ? array.pop() : null;
         }
     }
 
     function Maximum<T>(): IMaximum<T> {
-        var object: any = () => {
+        var object: any = (): IQuery<T> => {
             return this.maximum.by(item => item);
         }
         object.by = MaximumBy.call(this);
@@ -172,7 +167,7 @@
     }
 
     function Minimum<T>(): IMaximum<T> {
-        var object: any = () => {
+        var object: any = (): IQuery<T> => {
             return this.minimum.by(item => item);
         }
         object.by = MinimumBy.call(this);
@@ -414,7 +409,6 @@
 
     class BaseIterator<T> implements IIterator<T> {
         reset(): void { throw Error; }
-        current(): IIteratorResult<T> { throw Error; }
         next(): IIteratorResult<T> { throw Error; }
         all(): T[] {
             var item: IIteratorResult<T>,
@@ -836,10 +830,9 @@
     export interface IFilter<T> { (item: T, index?: number): boolean }
 
     export interface IIterator<T> {
-        reset(): void;
-        current(): IIteratorResult<T>;
-        next(reset?: boolean): IIteratorResult<T>;
         all(): T[];
+        next(reset?: boolean): IIteratorResult<T>;
+        reset(): void;
     }
 
     interface IIteratorResult<TSource> {
@@ -889,11 +882,11 @@
     }
 
     interface ICount<T> {
-        (func?: IFilter<T>): number;
+        (): number;
     }
 
     interface IFirst<T> {
-        (func?: IFilter<T>): T;
+        (): T;
     }
 
     interface IFlatten<T> {
@@ -925,7 +918,7 @@
     }
 
     interface ILast<T> {
-        (func?: IFilter<T>): T;
+        (): T;
     }
 
     interface IMaximum<T> {
@@ -934,7 +927,7 @@
     }
 
     interface IMaximumBy<T> {
-        <TKey>(func?: IConverter<T, TKey>): IQuery<T>;
+        <TKey>(func: IConverter<T, TKey>): IQuery<T>;
     }
 
     interface IMinimum<T> {
@@ -943,7 +936,7 @@
     }
 
     interface IMinimumBy<T> {
-        <TKey>(func?: IConverter<T, TKey>): IQuery<T>;
+        <TKey>(func: IConverter<T, TKey>): IQuery<T>;
     }
 
     interface IMix<T> {
@@ -999,7 +992,7 @@
     }
 
     interface ISingle<T> {
-        (func?: IFilter<T>): T;
+        (): T;
     }
 
     interface ISkip<T> {
