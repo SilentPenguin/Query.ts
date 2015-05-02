@@ -24,4 +24,4 @@ Now that you have seen how a typical query might look, you are hopefully itching
 
 To best understand what it can do, experimenting with intellisense is probably the easiest way. Query.ts was designed to be readable, methods have been stripped down to their barest representations, in both functionality, and naming. 
 
-For those who prefer reading, please refer to the [wiki](/SilentPenguin/Query.ts/wiki).
+For those who prefer reading, please refer to the [wiki](https://github.com/SilentPenguin/Query.ts/wiki).
