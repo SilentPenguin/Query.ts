@@ -18,18 +18,16 @@
             this.iterator = iterator;
         }
 
-        all: IAll<T> = All.call(this);
-        any: IAny<T> = Any.call(this);
         as: IAs<T> = As.call(this);
         count: ICount<T> = Count.call(this);
         first: IFirst<T> = First.call(this);
         flatten: IFlatten<T> = Flatten.call(this);
         group: IGroup<T> = Group.call(this);
+        has: IHas<T> = Has.call(this);
         last: ILast<T> = Last.call(this);
         maximum: IMaximum<T> = Maximum.call(this);
         minimum: IMinimum<T> = Minimum.call(this);
         mix: IMix<T> = Mix.call(this);
-        only: IOnly<T> = Only.call(this);
         order: IOrder<T> = Order.call(this);
         pair: IPair<T> = Pair.call(this);
         reverse: IReverse<T> = Reverse.call(this);
@@ -38,6 +36,14 @@
         take: ITake<T> = Take.call(this);
         unique: IUnique<T> = Unique.call(this);
         zip: IZip<T> = Zip.call(this);
+    }
+
+    function Has<T>(): IHas<T> {
+        var object: any = {};
+        object.all = All.call(this);
+        object.any = Any.call(this);
+        object.only = Only.call(this);
+        return object;
     }
 
     function NotNull<T>(item: T): boolean {
@@ -842,18 +848,16 @@
 
     export interface IQuery<T> {
         iterator: IIterator<T>;
-        all: IAll<T>;
-        any: IAny<T>;
         as: IAs<T>;
         count: ICount<T>;
         first: IFirst<T>;
         flatten: IFlatten<T>;
         group: IGroup<T>;
+        has: IHas<T>;
         last: ILast<T>;
         maximum: IMaximum<T>;
         minimum: IMinimum<T>;
         mix: IMix<T>;
-        only: IOnly<T>;
         order: IOrder<T>;
         pair: IPair<T>;
         reverse: IReverse<T>;
@@ -915,6 +919,12 @@
     interface IIf<T> {
         (func: IFilter<T>): T;
         not: INot<T>;
+    }
+
+    interface IHas<T> {
+        all: IAll<T>;
+        any: IAny<T>;
+        only: IOnly<T>;
     }
 
     interface ILast<T> {
