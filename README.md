@@ -10,7 +10,7 @@ Inspired by C#'s linq, it uses similar API ideas, but instead pairs the api down
 
 ```typescript
 var items: number[] = [2, 1, 4, 3, 6, 5];
-Query.from(items).take.if.not(value => value > 6).as.array(); // [2, 1, 4, 3, 5]
+Query.from(items).take.if.not(value => value > 5).as.array(); // [2, 1, 4, 3, 5]
 Query.from(items).skip.while(value => value < 3).as.array(); // [4, 3, 6, 5]
 Query.from(items).mix.with(items).as.array(); // [2, 1, 4, 3, 6, 5, 2, 1, 4, 3, 6, 5]
 
