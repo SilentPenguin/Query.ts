@@ -24,4 +24,4 @@ Now that you have seen how a typical query might look, you are hopefully itching
 
 To best understand what it can do, experimenting with intellisense is probably the best way. Query.ts was designed to be reader friendly. 
 
-For those who prefer reading, please refer to the [wiki](https://github.com/SilentPenguin/Query.ts/wiki) for documentation, where examples are provided throughout.
+For those who prefer documentation, please refer to the [wiki](https://github.com/SilentPenguin/Query.ts/wiki) for documentation, where examples are provided throughout.
