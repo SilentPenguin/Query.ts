@@ -56,6 +56,8 @@
                 item: IIteratorResult<T>,
                 func: IFilter<T> = func || NotNull;
 
+            this.iterator.reset();
+
             while (!item || !item.done && result) {
                 item = this.iterator.next();
                 if (!item.done) {
@@ -70,7 +72,7 @@
     function Any<T>(): IAny<T> {
         return (func?: IFilter<T>): boolean => {
             var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func);
-            return !iterator.next().done;
+            return !iterator.next(true).done;
         };
     }
 
@@ -215,8 +217,7 @@
     function Only<T>(): IOnly<T> {
         return (func?: IFilter<T>): boolean => {
             var iterator: IIterator<T> = func == null ? this.iterator : new FilterIterator(this.iterator, func);
-            iterator.next(true);
-            return iterator.next().done;
+            return !iterator.next(true).done && iterator.next().done;
         }
     }
 
@@ -253,10 +254,10 @@
         };
     }
 
-    class Pairing<TSource, TTarget> implements IPairing<TSource, TTarget> {
-        source: TSource;
-        target: TTarget;
-        constructor(source: TSource, target: TTarget) { this.source = source; this.target = target; }
+    class Pairing<T, TWith> implements IPairing<T, TWith> {
+        source: T;
+        target: TWith;
+        constructor(source: T, target: TWith) { this.source = source; this.target = target; }
     }
 
     class PairQuery<T, TWith> extends Query<IPairing<T, TWith>> implements IPairQuery<T, TWith> {
@@ -401,7 +402,7 @@
         constructor(iterator: IIterator<IZipping<T, TWith>>) { super(iterator) }
     }
 
-    class Zipping<T, TWith> extends Pairing<T, TWith> { }
+    class Zipping<T, TWith> extends Pairing<T, TWith> implements IPairing<T, TWith> { }
 
    /*------------------*
     *    Iterators     *
