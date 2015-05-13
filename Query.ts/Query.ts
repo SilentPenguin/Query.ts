@@ -918,7 +918,7 @@
     }
 
     interface IIf<T> {
-        (func: IFilter<T>): T;
+        (func: IFilter<T>): IQuery<T>;
         not: INot<T>;
     }
 

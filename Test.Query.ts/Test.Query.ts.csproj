@@ -24,6 +24,8 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="Assert.ts" />
+    <TypeScriptCompile Include="Test.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
