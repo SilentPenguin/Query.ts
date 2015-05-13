@@ -1,4 +1,4 @@
-﻿/// <reference path="query.ts" />
+﻿/// <reference path="../query.ts/query.ts" />
 class Greeter {
     element: HTMLElement;
     span: HTMLElement;

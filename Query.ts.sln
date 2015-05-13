@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Query.ts", "Query.ts\Query.ts.csproj", "{F08ECCA2-A16B-4838-B4E2-1A44C7667F99}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Query.ts", "Test.Query.ts\Test.Query.ts.csproj", "{0D7CC3C0-838D-4497-A830-A37C3025C3DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F08ECCA2-A16B-4838-B4E2-1A44C7667F99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F08ECCA2-A16B-4838-B4E2-1A44C7667F99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F08ECCA2-A16B-4838-B4E2-1A44C7667F99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D7CC3C0-838D-4497-A830-A37C3025C3DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D7CC3C0-838D-4497-A830-A37C3025C3DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D7CC3C0-838D-4497-A830-A37C3025C3DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D7CC3C0-838D-4497-A830-A37C3025C3DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
