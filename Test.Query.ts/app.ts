@@ -12,13 +12,17 @@ class QueryTests extends Test.Case {
     @test
     As() {
         var result = Query.from(this.array).as(item => String(item));
-        Assert.that(result.count()).is.equal.to(6);
+        var expectation = ['2', '1', '4', '3', '6', '5'];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     AsArray() {
         var result = Query.from(this.array).as.array();
-        Assert.that(result.length).is.equal.to(6);
+        var expectation = [2, 1, 4, 3, 6, 5];
+        Assert.that(result.length).is.equal.to(expectation.length);
+        Assert.that.all(result).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
@@ -36,8 +40,10 @@ class QueryTests extends Test.Case {
     @test
     Flatten() {
         var arrays: any[] = [{ items: [2, 1] }, { items: [4, 3] }, { items: [6, 5] }];
+        var expectation = [2, 1, 4, 3, 6, 5];
         var result = Query.from(arrays).flatten(array => array.items);
-        Assert.that(result.count()).is.equal.to(6);
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
@@ -86,7 +92,9 @@ class QueryTests extends Test.Case {
     @test
     MaximumBy() {
         var result = Query.from(this.array).maximum.by(item => item % 2);
-        Assert.that(result.count()).is.equal.to(3);
+        var expectation = [1, 3, 5];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
@@ -100,53 +108,65 @@ class QueryTests extends Test.Case {
     @test
     MinimumBy() {
         var result = Query.from(this.array).minimum.by(item => item % 2);
-        Assert.that(result.count()).is.equal.to(3);
+        var expectation = [2, 4, 6];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     Mix() {
         var result = Query.from(this.array).mix.with(this.array);
-        Assert.that(result.count()).is.equal.to(this.array.length * 2);
+        var expectation = [2, 1, 4, 3, 6, 5, 2, 1, 4, 3, 6, 5];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     Order() {
         var result = Query.from(this.array).order();
-        Assert.that(result.count()).is.equal.to(this.array.length);
-        Assert.that(result.first()).is.equal.to(1);
-        Assert.that(result.last()).is.equal.to(6);
+        var expectation = [1, 2, 3, 4, 5, 6];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     OrderBy() {
         var result = Query.from(this.array).order.by(item => item * -1);
-        Assert.that(result.count()).is.equal.to(this.array.length);
-        Assert.that(result.first()).is.equal.to(6);
-        Assert.that(result.last()).is.equal.to(1);
+        var expectation = [6, 5, 4, 3, 2, 1];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     Pair() {
         var items: number[] = [2, 1];
         var others: number[] = [1, 3];
-        var result = Query.from(items).pair.with(others).if(pair => pair.source != pair.target);
-        Assert.that(result.count()).is.equal.to(3);
+        var result = Query.from(items).pair.with(others);
+        var expectation = [{ source: 2, target: 1 }, { source: 2, target: 3 }, { source: 1, target: 1 }, { source: 1, target: 3 }]
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array())
+            .are.match.test((item, index) => item.source == expectation[index].source && item.target == expectation[index].target);
     }
 
     @test
     PairIf() {
         var items: number[] = [2, 1];
         var others: number[] = [1, 3];
-        var result = Query.from(items).pair.with(others);
-        Assert.that(result.count()).is.equal.to(4);
+        var result = Query.from(items).pair.with(others).if(pair => pair.source != pair.target);
+        var expectation = [{ source: 2, target: 1 }, { source: 2, target: 3 }, { source: 1, target: 3 }]
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array())
+            .are.match.test((item, index) => item.source == expectation[index].source && item.target == expectation[index].target);
+    
+
     }
 
     @test
     Reverse() {
         var result = Query.from(this.array).reverse();
-        Assert.that(result.count()).is.equal.to(6);
-        Assert.that(result.first()).is.equal.to(5);
-        Assert.that(result.last()).is.equal.to(2);
+        var expectation = [5, 6, 3, 4, 1, 2];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
@@ -159,70 +179,90 @@ class QueryTests extends Test.Case {
     @test
     SkipCount() {
         var result = Query.from(this.array).skip(4);
-        Assert.that(result.count()).is.equal.to(2);
+        var expectation = [6, 5];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     SkipIf() {
         var result = Query.from(this.array).skip.if(item => item < 4);
-        Assert.that(result.count()).is.equal.to(3);
+        var expectation = [4, 6, 5];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     SkipWhile() {
         var result = Query.from(this.array).skip.while(item => item < 4);
-        Assert.that(result.count()).is.equal.to(4);
+        var expectation = [4, 3, 6, 5];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     SkipUntil() {
         var result = Query.from(this.array).skip.until(item => item > 4);
-        Assert.that(result.count()).is.equal.to(2);
+        var expectation = [6, 5];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     TakeCount() {
         var result = Query.from(this.array).take(4);
-        Assert.that(result.count()).is.equal.to(4);
+        var expectation = [2, 1, 4, 3];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     TakeIf() {
         var result = Query.from(this.array).take.if(item => item <= 4);
-        Assert.that(result.count()).is.equal.to(4);
+        var expectation = [2, 1, 4, 3];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     TakeWhile() {
         var result = Query.from(this.array).take.while(item => item < 4);
-        Assert.that(result.count()).is.equal.to(2);
+        var expectation = [2, 1];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     TakeUntil() {
         var result = Query.from(this.array).take.until(item => item > 4);
-        Assert.that(result.count()).is.equal.to(4);
+        var expectation = [2, 1, 4, 3];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     ThenBy() {
         var result = Query.from(this.array).order.by(item => item % 2).then.by(item => item);
-        Assert.that(result.count()).is.equal.to(this.array.length);
-        Assert.that(result.first()).is.equal.to(2);
-        Assert.that(result.last()).is.equal.to(5);
+        var expectation = [2, 4, 6, 1, 3, 5];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     Unique() {
         this.array = [2, 2, 4, 4, 6, 5];
+        var expectation = [2, 4, 6, 5];
         var result = Query.from(this.array).unique();
-        Assert.that(result.count()).is.equal.to(4);
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
     UniqueBy() {
-        var result = Query.from(this.array).unique.by(item => item % 2); ;
-        Assert.that(result.count()).is.equal.to(2);
+        var result = Query.from(this.array).unique.by(item => item % 2);
+        var expectation = [2, 1];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array()).are.match.test((item, index) => item == expectation[index]);
     }
 
     @test
@@ -230,7 +270,10 @@ class QueryTests extends Test.Case {
         var items: number[] = [2, 1];
         var other: number[] = [4, 3];
         var result = Query.from(items).zip.with(other);
-        Assert.that(result.count()).is.equal.to(2);
+        var expectation = [{ source: 2, target: 4 }, { source: 1, target: 3 }];
+        Assert.that(result.count()).is.equal.to(expectation.length);
+        Assert.that.all(result.as.array())
+            .are.match.test((item, index) => item.source == expectation[index].source && item.target == expectation[index].target);
     }
 }
 

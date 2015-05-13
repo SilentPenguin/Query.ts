@@ -137,7 +137,7 @@
     function AssertMatch<T>(assert: Function): IAssertMatch<T> {
         return {
             expression: (item: RegExp) => { assert(value => item.test(value), "match.expression(" + item +")"); },
-            test: <T>(func: IFilter<T>) => { assert(value => func(value), "match.test(" + func +")"); }
+            test: <T>(func: IFilter<T>) => { assert(func, "match.test(" + func +")"); }
         };
     }
 
@@ -238,7 +238,7 @@
     }
 
     interface IFilter<T> {
-        (item: T): boolean;
+        (item: T, index?: number, array?: T[]): boolean;
     }
 
     interface IAssertTest<T> {
