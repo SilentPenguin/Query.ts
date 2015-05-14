@@ -1,6 +1,6 @@
 ﻿/// <reference path="../query.ts/query.ts" />
-/// <reference path="test.ts" />
-/// <reference path="assert.ts" />
+/// <reference path="../../test.ts/test.ts/test.ts" />
+/// <reference path="../../test.ts/test.ts/assert.ts" />
 
 class QueryTests extends Test.Case {
     array: number[];

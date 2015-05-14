@@ -18,16 +18,32 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="..\..\Test.ts\Test.ts\assert.js">
+      <Link>assert.js</Link>
+    </Content>
+    <Content Include="..\..\Test.ts\Test.ts\test.js">
+      <Link>test.js</Link>
+    </Content>
     <Content Include="app.css" />
     <Content Include="index.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Assert.ts">
+      <Link>Assert.ts</Link>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Test.ts">
+      <Link>Test.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
-    <TypeScriptCompile Include="Assert.ts" />
-    <TypeScriptCompile Include="Test.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\Test.ts\Test.ts\assert.js.map">
+      <Link>assert.js.map</Link>
+    </Content>
+    <Content Include="..\..\Test.ts\Test.ts\test.js.map">
+      <Link>test.js.map</Link>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -76,4 +92,7 @@
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
+    <Copy SourceFiles="%(Content.Identity)" DestinationFiles="%(Content.Link)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Condition="'%(Content.Link)' != ''" />
+  </Target>
 </Project>
