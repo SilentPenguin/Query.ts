@@ -19,30 +19,39 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="..\..\Test.ts\Test.ts\assert.js">
-      <Link>assert.js</Link>
+      <Link>Scripts\assert.js</Link>
     </Content>
     <Content Include="..\..\Test.ts\Test.ts\test.js">
-      <Link>test.js</Link>
+      <Link>Scripts\test.js</Link>
+    </Content>
+    <Content Include="..\Query.ts\Query.js">
+      <Link>Scripts\Query.js</Link>
     </Content>
     <Content Include="app.css" />
     <Content Include="index.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Assert.ts">
-      <Link>Assert.ts</Link>
-    </TypeScriptCompile>
-    <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Test.ts">
-      <Link>Test.ts</Link>
+    <Content Include="..\..\Test.ts\Test.ts\Assert.ts">
+      <Link>Scripts\Assert.ts</Link>
+    </Content>
+    <Content Include="..\..\Test.ts\Test.ts\Test.ts">
+      <Link>Scripts\Test.ts</Link>
+    </Content>
+    <TypeScriptCompile Include="..\Query.ts\Query.ts">
+      <Link>Scripts\Query.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\..\Test.ts\Test.ts\assert.js.map">
-      <Link>assert.js.map</Link>
+      <Link>Scripts\assert.js.map</Link>
     </Content>
     <Content Include="..\..\Test.ts\Test.ts\test.js.map">
-      <Link>test.js.map</Link>
+      <Link>Scripts\test.js.map</Link>
+    </Content>
+    <Content Include="..\Query.ts\Query.js.map">
+      <Link>Scripts\Query.js.map</Link>
     </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
