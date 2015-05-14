@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Query.ts", "Query.ts\Query.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Query.ts", "Test.Query.ts\Test.Query.ts.csproj", "{0D7CC3C0-838D-4497-A830-A37C3025C3DA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.ts", "..\Test.ts\Test.ts\Test.ts.csproj", "{EB7FB6AD-5DAE-4C03-8D1C-E7FABDFE2E61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{0D7CC3C0-838D-4497-A830-A37C3025C3DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D7CC3C0-838D-4497-A830-A37C3025C3DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D7CC3C0-838D-4497-A830-A37C3025C3DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB7FB6AD-5DAE-4C03-8D1C-E7FABDFE2E61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB7FB6AD-5DAE-4C03-8D1C-E7FABDFE2E61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB7FB6AD-5DAE-4C03-8D1C-E7FABDFE2E61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB7FB6AD-5DAE-4C03-8D1C-E7FABDFE2E61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

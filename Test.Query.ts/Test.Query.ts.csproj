@@ -61,6 +61,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Test.ts\Test.ts\Test.ts.csproj">
+      <Project>{eb7fb6ad-5dae-4c03-8d1c-e7fabdfe2e61}</Project>
+      <Name>Test.ts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Query.ts\Query.ts.csproj">
       <Project>{f08ecca2-a16b-4838-b4e2-1a44c7667f99}</Project>
       <Name>Query.ts</Name>
