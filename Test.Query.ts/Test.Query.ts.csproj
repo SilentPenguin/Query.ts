@@ -18,41 +18,23 @@
     <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\..\Test.ts\Test.ts\assert.js">
-      <Link>Scripts\assert.js</Link>
-    </Content>
-    <Content Include="..\..\Test.ts\Test.ts\test.js">
-      <Link>Scripts\test.js</Link>
-    </Content>
-    <Content Include="..\Query.ts\Query.js">
-      <Link>Scripts\Query.js</Link>
-    </Content>
     <Content Include="app.css" />
     <Content Include="index.html" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Test.ts\Test.ts\Assert.ts">
+    <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Assert.ts">
       <Link>Scripts\Assert.ts</Link>
-    </Content>
-    <Content Include="..\..\Test.ts\Test.ts\Test.ts">
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Test.ts">
       <Link>Scripts\Test.ts</Link>
-    </Content>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\Query.ts\Query.ts">
       <Link>Scripts\Query.ts</Link>
     </TypeScriptCompile>
     <TypeScriptCompile Include="app.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\Test.ts\Test.ts\assert.js.map">
-      <Link>Scripts\assert.js.map</Link>
-    </Content>
-    <Content Include="..\..\Test.ts\Test.ts\test.js.map">
-      <Link>Scripts\test.js.map</Link>
-    </Content>
-    <Content Include="..\Query.ts\Query.js.map">
-      <Link>Scripts\Query.js.map</Link>
-    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
@@ -107,5 +89,10 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
     <Copy SourceFiles="%(Content.Identity)" DestinationFiles="%(Content.Link)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Condition="'%(Content.Link)' != ''" />
+  </Target>
+  <Target Name="CopyLinkedContentFiles" AfterTargets="Build">
+    <Copy SourceFiles="%(TypeScriptCompile.Identity)" DestinationFiles="%(TypeScriptCompile.Link)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Condition="'%(TypeScriptCompile.Link)' != ''" />
+    <Copy SourceFiles="@(TypeScriptCompile -> '%(RootDir)%(Directory)%(Filename).js')" DestinationFolder="$(MSBuildProjectDirectory)\Scripts" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+    <Copy SourceFiles="@(TypeScriptCompile -> '%(RootDir)%(Directory)%(Filename).js.map')" DestinationFolder="$(MSBuildProjectDirectory)\Scripts" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
   </Target>
 </Project>
