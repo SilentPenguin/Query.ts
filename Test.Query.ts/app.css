@@ -5,3 +5,153 @@
 span {
     font-style: italic;
 }
+
+.status {
+    position: relative;
+    padding: 7px 8px 7px 30px;
+    color: white;
+    font-size: large;
+    font-weight: bold;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background: #9CCF31;
+    border-bottom: solid 5px #abe238;
+}
+
+.status.fail {
+    background: #FF9E00;
+    border-bottom: solid 5px #ffc05a;
+}
+
+.status.pass::before {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    content: '';
+    border: solid white 5px;
+    border-top: none;
+    border-left: none;
+    width: 5px;
+    display: block;
+    height: 10px;
+    transform: rotate(45deg);
+}
+
+.status.fail::before {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    content: '';
+    border-left: solid white 5px;
+    display: block;
+    height: 16px;
+    transform: rotate(45deg);
+}
+
+.status.fail::after {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    content: '';
+    border-left: solid white 5px;
+    display: block;
+    height: 16px;
+    transform: rotate(-45deg);
+}
+
+.results {
+    color: white;
+    padding: 0;
+    margin: 0 auto;
+}
+
+.results li {
+    position: relative;
+    padding: 8px 8px 8px 30px;
+    list-style: none;
+}
+
+.results li:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.results pre {
+    background: white;
+    color: initial;
+    padding: 5px;
+    border-radius: 6px;
+    margin: 10px 0 0 0;
+}
+
+.results .pass {
+    background: #9CCF31;
+}
+
+.results .pass::before {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    content: '';
+    border: solid white 5px;
+    border-top: none;
+    border-left: none;
+    width: 5px;
+    display: block;
+    height: 10px;
+    transform: rotate(45deg);
+}
+
+.results .fail {
+    background: #FF9E00;
+}
+
+.results .fail::before {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    content: '';
+    border-left: solid white 5px;
+    display: block;
+    height: 16px;
+    transform: rotate(45deg);
+}
+
+.results .fail::after {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    content: '';
+    border-left: solid white 5px;
+    display: block;
+    height: 16px;
+    transform: rotate(-45deg);
+}
+
+.results .skip {
+    background: #009ECE;
+}
+
+.results .skip::before {
+    position: absolute;
+    top: 17px;
+    left: 8px;
+    content: '';
+    border-top: solid white 5px;
+    display: block;
+    width: 14px;
+}
+
+.results .none {
+    background: #808080;
+}
+
+.results .none::before {
+    position: absolute;
+    top: 17px;
+    left: 8px;
+    content: '';
+    border-top: solid white 5px;
+    display: block;
+    width: 14px;
+}

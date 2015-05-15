@@ -26,6 +26,9 @@
     <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Assert.ts">
       <Link>Scripts\Assert.ts</Link>
     </TypeScriptCompile>
+    <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Report.ts">
+      <Link>Scripts\Report.ts</Link>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="..\..\Test.ts\Test.ts\Test.ts">
       <Link>Scripts\Test.ts</Link>
     </TypeScriptCompile>
@@ -88,7 +91,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Target Name="CopyLinkedContentFiles" AfterTargets="Build">
-    <Copy Condition="'%(TypeScriptCompile.Link)' != ''" SourceFiles="%(TypeScriptCompile.Identity)" DestinationFiles="%(TypeScriptCompile.Link)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true"/>
+    <Copy Condition="'%(TypeScriptCompile.Link)' != ''" SourceFiles="%(TypeScriptCompile.Identity)" DestinationFiles="%(TypeScriptCompile.Link)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
     <Copy Condition="'%(TypeScriptCompile.Link)' != ''" SourceFiles="@(TypeScriptCompile -> '%(RootDir)%(Directory)%(Filename).js')" DestinationFolder="$([System.IO.Path]::GetDirectoryName(%(TypeScriptCompile.Link)))" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
     <Copy Condition="'%(TypeScriptCompile.Link)' != ''" SourceFiles="@(TypeScriptCompile -> '%(RootDir)%(Directory)%(Filename).js.map')" DestinationFolder="$([System.IO.Path]::GetDirectoryName(%(TypeScriptCompile.Link)))" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
   </Target>

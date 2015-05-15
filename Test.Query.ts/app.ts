@@ -1,4 +1,5 @@
 ﻿/// <reference path="../query.ts/query.ts" />
+/// <reference path="../../test.ts/test.ts/report.ts" />
 /// <reference path="../../test.ts/test.ts/test.ts" />
 /// <reference path="../../test.ts/test.ts/assert.ts" />
 
@@ -278,14 +279,6 @@ class QueryTests extends Test.Case {
 }
 
 window.onload = () => {
-    var testcase: Test.Case = new QueryTests();
     var element = document.getElementById('content');
-    var pass = testcase.run();
-    var results = testcase.results();
-    var passed = results.filter(item=> item.state == Test.State.pass);
-    var failed = results.filter(item=> item.state == Test.State.fail);
-    var skipped = results.filter(item=> item.state == Test.State.skip);
-    element.innerHTML = (passed ? passed.length + ' tests passed. ' : '')
-    + (failed ? failed.length + ' tests failed. ' : '')
-    + (skipped ? skipped.length + ' tests skipped. ' : '');
-};
+    new Report.Html(new QueryTests).run(element);
+}
