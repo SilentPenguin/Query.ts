@@ -15,12 +15,10 @@ span {
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     background: #9CCF31;
-    border-bottom: solid 5px #abe238;
 }
 
 .status.fail {
     background: #FF9E00;
-    border-bottom: solid 5px #ffc05a;
 }
 
 .status.pass::before {
@@ -57,6 +55,21 @@ span {
     display: block;
     height: 16px;
     transform: rotate(-45deg);
+}
+
+.timer {
+    position: relative;
+    padding: 0 8px 7px 30px;
+    color: white;
+    font-size: large;
+    font-weight: bold;
+    background: #9CCF31;
+    border-bottom: solid 5px #abe238;
+}
+
+.timer.fail {
+    background: #FF9E00;
+    border-bottom: solid 5px #ffc05a;
 }
 
 .results {
