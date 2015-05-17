@@ -279,6 +279,5 @@ class QueryTests extends Test.Case {
 }
 
 window.onload = () => {
-    var element = document.getElementById('content');
-    new Report.Html(new QueryTests).run(element);
+    document.getElementById('content').innerHTML = new Report.Html(new QueryTests).run();
 }
