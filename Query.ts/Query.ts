@@ -878,7 +878,7 @@
     }
 
     interface IAs<T> {
-        <TOut>(func?: IConverter<T, TOut>): IQuery<TOut>;
+        <TOut>(func: IConverter<T, TOut>): IQuery<TOut>;
         array: IAsArray<T>;
     }
 
