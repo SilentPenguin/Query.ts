@@ -1013,23 +1013,11 @@
         until: IUntil<T>;
     }
 
-    interface ISkipped<T> extends IQuery<T> {
-        and: ISkip<T>;
-        or: ISkip<T>;
-        then: IQuery<T>;
-    }
-
     interface ITake<T> {
         (count: number): IQuery<T>;
         if: IIf<T>;
         while: IWhile<T>;
         until: IUntil<T>;
-    }
-
-    interface ITaken<T> extends IQuery<T> {
-        and: ITake<T>;
-        or: ITake<T>;
-        then: IQuery<T>;
     }
 
     interface IUnique<T> {
