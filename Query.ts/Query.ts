@@ -464,7 +464,7 @@
     class CombineIterator<TIn, TWith, TOut> extends ParentIterator<TIn, TOut> {
         protected otherparent: IIterator<TWith>;
         reset(): void { super.reset(); this.otherparent.reset(); }
-        constructor(parent: IIterator<TIn>, otherParent: IIterator<TWith>) { super(parent); this.otherparent = otherParent; }
+        constructor(parent: IIterator<TIn>, otherparent: IIterator<TWith>) { super(parent); this.otherparent = otherparent; }
     }
 
     class ConvertIterator<TIn, TOut> extends ParentIterator<TIn, TOut>
